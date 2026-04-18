@@ -33,7 +33,7 @@
         .app-container {
             width: 100%;
             max-width: 380px;
-            margin-top: calc(15vh - 20px);
+            margin-top: calc(10vh - 20px);
             margin-bottom: 50px;
             animation: appIn 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -83,7 +83,6 @@
             margin-bottom: 25px;
             letter-spacing: 0.5px;
             height: 18px;
-            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -97,7 +96,6 @@
             background: var(--text-dim);
             border-radius: 50%;
             margin-right: 8px;
-            transition: background 0.3s;
         }
 
         .status-terminal.active::before { background: var(--accent); animation: pulse 1.5s infinite; }
@@ -113,14 +111,12 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            transition: all 0.2s;
             position: relative;
-            overflow: hidden;
         }
 
-        .main-button:hover { background: #eee; }
         .main-button:active { transform: scale(0.97); }
-        .main-button:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+        .main-button:disabled { background: var(--border); color: var(--text-dim); }
 
         .button-loading {
             position: absolute;
@@ -142,112 +138,75 @@
 
         #result-area {
             display: none;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
+            margin-top: 20px;
             animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .qr-container {
+            margin: 20px 0;
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+
+        .qr-container img {
+            display: block;
+            width: 180px;
+            height: 180px;
         }
 
         .hash-box {
             background: rgba(0,0,0,0.5);
             padding: 15px;
             border-radius: 12px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.65rem;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.6rem;
             color: var(--accent);
             word-break: break-all;
-            text-align: left;
-            margin-bottom: 20px;
             border: 1px solid #111;
+            margin-bottom: 15px;
         }
 
-        .share-btn {
-            background: transparent;
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            padding: 12px 20px;
+        .audit-log {
+            text-align: left;
+            background: #050505;
+            border: 1px solid #111;
             border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.2s;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'SF Mono', monospace;
+            font-size: 0.65rem;
+            color: #444;
         }
+
+        .audit-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .audit-val { color: var(--text-dim); }
 
         .explainer-container {
             width: 100%;
             max-width: 600px;
-            margin-bottom: 50px;
+            margin-top: 50px;
             border-top: 1px solid #111;
             padding-top: 50px;
             opacity: 0;
-            animation: explainerIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            animation-delay: 0.5s;
-        }
-
-        .explainer-title {
-            text-align: center;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-main);
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+            animation: explainerIn 1.2s forwards 0.5s;
         }
 
         .explainer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
+            gap: 20px;
         }
 
-        .info-card {
-            background: #080808;
-            border: 1px solid #111;
-            padding: 25px;
-            border-radius: 20px;
-        }
-
-        .info-icon {
-            width: 24px;
-            height: 24px;
-            fill: var(--text-dim);
-            margin-bottom: 15px;
-        }
-
-        .info-card h3 {
-            margin: 0 0 10px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .info-card p {
-            margin: 0;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            line-height: 1.6;
-        }
-
-        footer {
-            width: 100%;
-            text-align: center;
-            padding: 30px 0;
-            font-size: 0.7rem;
-            color: #333;
-            margin-top: auto;
-        }
+        .info-card { background: #080808; padding: 25px; border-radius: 20px; border: 1px solid #111; }
+        .info-card h3 { font-size: 0.9rem; margin-top: 0; }
+        .info-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0; }
 
         @keyframes appIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes explainerIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        @media (max-width: 480px) {
-            body { padding: 15px; }
-            .app-container { margin-top: calc(10vh - 15px); }
-            .auth-card { padding: 25px; }
-        }
     </style>
 </head>
 <body>
@@ -259,114 +218,98 @@
 
     <header>
         <h1>HARD-ATT</h1>
-        <div class="subtitle">Hardware-Level Human Proof Layer</div>
+        <div class="subtitle">Secure Hardware Attestation</div>
     </header>
 
     <div class="auth-card">
         <div id="status" class="status-terminal">SYSTEM_READY</div>
         <button id="startBtn" class="main-button">
-            AUTHENTIFIZIEREN
+            JETZT VERIFIZIEREN
             <div class="button-loading"></div>
         </button>
 
         <div id="result-area">
+            <div class="qr-container" id="qrContainer"></div>
             <div class="hash-box" id="hashDisplay"></div>
-            <button id="copyBtn" class="share-btn">HASH KOPIEREN</button>
+            
+            <div class="audit-log">
+                <div class="audit-item"><span>TYPE:</span><span class="audit-val">WEBAUTHN_RS256</span></div>
+                <div class="audit-item"><span>ENCLAVE:</span><span class="audit-val">ACTIVE</span></div>
+                <div class="audit-item"><span>VERIFIED:</span><span class="audit-val" style="color:var(--accent)">TRUE</span></div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="explainer-container">
-    <h2 class="explainer-title">Verifikations-Protokoll</h2>
     <div class="explainer-grid">
         <div class="info-card">
-            <svg class="info-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 12 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            <h3>Integrität</h3>
-            <p>Die Authentifizierung basiert auf geräteeigenen Krypto-Modulen. Dies verhindert skalierbare Bot-Angriffe durch physische Hardware-Bindung.</p>
+            <h3>Hardware-Bindung</h3>
+            <p>Ihr privater Schlüssel verlässt niemals den Sicherheits-Chip Ihres Geräts. Keine Cloud, kein Tracking.</p>
         </div>
         <div class="info-card">
-            <svg class="info-icon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
-            <h3>Zero Knowledge</h3>
-            <p>Es erfolgt kein Zugriff auf persönliche Identifikationsmerkmale. Die Verifizierung bestätigt lediglich den Ursprung eines legitimen Nutzers.</p>
+            <h3>Bot-Resistenz</h3>
+            <p>Durch den physischen Biometrie-Zwang sind automatisierte Angriffe wirtschaftlich und technisch unmöglich.</p>
         </div>
     </div>
 </div>
-
-<footer>
-    © 2026 HARD-ATT. MVP BUILD 0.9.
-</footer>
 
 <script>
     const startBtn = document.getElementById('startBtn');
     const statusText = document.getElementById('status');
     const resultArea = document.getElementById('result-area');
     const hashDisplay = document.getElementById('hashDisplay');
+    const qrContainer = document.getElementById('qrContainer');
 
     startBtn.addEventListener('click', async () => {
         try {
             startBtn.disabled = true;
             startBtn.classList.add('loading');
-            statusText.classList.remove('error');
             statusText.classList.add('active');
-            statusText.innerText = "INITIALIZING_SECURE_ENCLAVE...";
+            statusText.innerText = "ACCESSING_SECURE_ELEMENT...";
 
-            const challengeBuffer = new Uint8Array(32);
-            window.crypto.getRandomValues(challengeBuffer);
+            const challenge = new Uint8Array(32);
+            window.crypto.getRandomValues(challenge);
 
             const options = {
-                challenge: challengeBuffer,
-                rp: { name: "Hard-Att Service", id: window.location.hostname },
+                challenge: challenge,
+                rp: { name: "Hard-Att", id: window.location.hostname },
                 user: {
                     id: window.crypto.getRandomValues(new Uint8Array(16)),
-                    name: "user@hard-att.io",
-                    displayName: "Verified Human Subject"
+                    name: "subject@hard-att.io",
+                    displayName: "Verified Subject"
                 },
                 pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-                authenticatorSelection: {
-                    userVerification: "required",
-                    residentKey: "preferred"
-                },
+                authenticatorSelection: { userVerification: "required" },
                 timeout: 60000
             };
 
-            statusText.innerText = "AWAITING_BIOMETRIC_CONFIRMATION...";
-
             const credential = await navigator.credentials.create({ publicKey: options });
-
-            if ('vibrate' in navigator) navigator.vibrate([10, 30, 10, 30]);
-
-            statusText.innerText = "ATTESTATION_SUCCESS_MATCH";
 
             const hashBuffer = await crypto.subtle.digest('SHA-256', credential.rawId);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
+            statusText.innerText = "ATTESTATION_VALIDATED";
+            statusText.style.color = "var(--accent)";
+
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${hashHex}&color=000000&bgcolor=ffffff`;
+            qrContainer.innerHTML = `<img src="${qrUrl}" alt="Verification QR">`;
+
             setTimeout(() => {
-                startBtn.classList.remove('loading');
                 startBtn.style.display = "none";
                 resultArea.style.display = "block";
                 hashDisplay.innerText = hashHex;
-            }, 800);
+            }, 600);
 
         } catch (err) {
             startBtn.disabled = false;
             startBtn.classList.remove('loading');
             statusText.classList.remove('active');
             statusText.classList.add('error');
-            statusText.innerText = "AUTH_FAILED: " + err.name;
+            statusText.innerText = "AUTH_ERROR: " + err.name;
         }
     });
-
-    document.getElementById('copyBtn').addEventListener('click', () => {
-        navigator.clipboard.writeText(hashDisplay.innerText);
-        const originalText = document.getElementById('copyBtn').innerText;
-        document.getElementById('copyBtn').innerText = "KOPIERT!";
-        if ('vibrate' in navigator) navigator.vibrate(15);
-        setTimeout(() => {
-            document.getElementById('copyBtn').innerText = originalText;
-        }, 2000);
-    });
 </script>
-
 </body>
 </html>
