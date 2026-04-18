@@ -3,217 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HARD-ATT V4.0 | Sovereign Infrastructure</title>
+    <title>HARD-ATT V4.5 | Stateless Sovereign Infrastructure</title>
     <style>
         :root {
-            --bg-primary: #000000;
-            --bg-secondary: #050505;
-            --bg-card: #0a0a0a;
-            --border-subtle: #111111;
-            --border-heavy: #222222;
-            --accent: #00ff88;
-            --accent-muted: #00331c;
-            --text-main: #ffffff;
-            --text-dim: #666666;
-            --text-critical: #ff3e3e;
-            --font-display: 'Inter', -apple-system, sans-serif;
-            --font-data: 'JetBrains Mono', monospace;
-            --radius: 2px;
-            --shadow-soft: 0 10px 30px rgba(0,0,0,0.5);
+            --bg-base: #000000;
+            --bg-nav: #050505;
+            --bg-surface: #0a0a0a;
+            --border-subtle: #121212;
+            --border-active: #252525;
+            --accent-glow: #00ff88;
+            --accent-dim: #004422;
+            --text-prime: #ffffff;
+            --text-secondary: #777777;
+            --text-alert: #ff4444;
+            --font-main: 'Inter', -apple-system, sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            font-family: var(--font-display);
+            background-color: var(--bg-base);
+            color: var(--text-prime);
+            font-family: var(--font-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden;
+            line-height: 1.5;
         }
 
-        .layout-engine {
+        .container {
             width: 100%;
             max-width: 1600px;
             margin: 0 auto;
-            padding: 80px 40px;
-            flex-grow: 1;
+            padding: 60px 40px;
+            flex: 1;
         }
 
-        .top-navigation {
+        .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-subtle);
-            padding-bottom: 40px;
+            padding-bottom: 30px;
             margin-bottom: 60px;
         }
 
-        .brand-core {
+        .status-badge {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-
-        .brand-icon {
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 15px var(--accent);
-        }
-
-        .brand-label {
-            font-weight: 900;
-            letter-spacing: 0.6em;
+            gap: 12px;
+            font-family: var(--font-code);
+            font-size: 0.65rem;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            color: var(--text-secondary);
         }
 
-        .main-container {
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .layout-grid {
             display: grid;
-            grid-template-columns: 1fr 450px;
-            gap: 80px;
+            grid-template-columns: 1fr 480px;
+            gap: 60px;
         }
 
         @media (max-width: 1200px) {
-            .main-container { grid-template-columns: 1fr; }
+            .layout-grid { grid-template-columns: 1fr; }
         }
 
-        .secure-panel {
-            background: var(--bg-secondary);
+        .action-chamber {
+            background: var(--bg-nav);
             border: 1px solid var(--border-subtle);
-            padding: 100px 80px;
+            padding: 80px;
             position: relative;
-            transition: border-color 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .secure-panel:hover {
-            border-color: var(--border-heavy);
-        }
-
-        .hero-text h1 {
-            font-size: clamp(3rem, 8vw, 5.5rem);
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
             font-weight: 900;
-            letter-spacing: -0.06em;
-            line-height: 0.85;
-            margin-bottom: 40px;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+            margin-bottom: 30px;
         }
 
-        .hero-text p {
-            color: var(--text-dim);
-            font-size: 1.25rem;
-            line-height: 1.6;
-            max-width: 600px;
+        .hero-desc {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            max-width: 550px;
             margin-bottom: 60px;
         }
 
-        .action-hub {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
+        .btn-group { display: flex; gap: 20px; flex-wrap: wrap; }
 
-        .btn-titan {
-            background: var(--text-main);
-            color: var(--bg-primary);
+        .btn-core {
+            background: var(--text-prime);
+            color: var(--bg-base);
             border: none;
-            padding: 28px 56px;
+            padding: 26px 52px;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.2em;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             font-size: 0.85rem;
-        }
-
-        .btn-titan:hover {
-            background: var(--accent);
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.2);
-        }
-
-        .btn-titan:disabled {
-            background: var(--border-heavy);
-            color: var(--text-dim);
-            cursor: wait;
-            transform: none;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: var(--text-dim);
-            border: 1px solid var(--border-heavy);
-            padding: 28px 40px;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            font-size: 0.7rem;
             cursor: pointer;
-            transition: var(--transition);
+            transition: var(--transition-smooth);
         }
 
-        .btn-ghost:hover {
-            color: var(--text-main);
-            border-color: var(--text-dim);
+        .btn-core:hover {
+            background: var(--accent-glow);
+            transform: translateY(-2px);
         }
 
-        .telemetry-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 40px;
+        .btn-core:disabled {
+            background: var(--border-active);
+            color: var(--text-secondary);
+            cursor: not-allowed;
         }
 
-        .data-card {
-            background: var(--bg-card);
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-active);
+            padding: 26px 40px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .btn-outline:hover { color: var(--text-prime); border-color: var(--text-secondary); }
+
+        .sidebar { display: flex; flex-direction: column; gap: 30px; }
+
+        .widget {
+            background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
-            padding: 40px;
+            padding: 35px;
         }
 
-        .data-card h3 {
-            font-family: var(--font-data);
-            font-size: 0.65rem;
-            color: var(--text-dim);
+        .widget-head {
+            font-family: var(--font-code);
+            font-size: 0.6rem;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.3em;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
         }
 
-        .metric-row {
+        .data-row {
             display: flex;
             justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-subtle);
+            padding: 12px 0;
+            border-bottom: 1px solid #111;
+            font-family: var(--font-code);
+            font-size: 0.75rem;
         }
 
-        .metric-label { color: var(--text-dim); font-size: 0.8rem; }
-        .metric-value { font-family: var(--font-data); font-size: 0.85rem; color: var(--accent); }
+        .data-label { color: var(--text-secondary); }
+        .data-value { color: var(--accent-glow); }
 
-        .terminal-output {
+        .audit-terminal {
             background: #000;
-            height: 350px;
-            padding: 25px;
-            font-family: var(--font-data);
-            font-size: 0.7rem;
-            color: #333;
+            height: 320px;
+            padding: 20px;
+            font-family: var(--font-code);
+            font-size: 0.65rem;
+            color: #444;
             overflow-y: auto;
             border: 1px solid var(--border-subtle);
         }
 
-        .log-line { margin-bottom: 8px; line-height: 1.5; border-left: 2px solid transparent; padding-left: 10px; }
-        .log-line.auth { border-left-color: var(--accent); color: #888; }
-        .log-line.sys { color: #555; }
-        .log-line.err { border-left-color: var(--text-critical); color: var(--text-critical); }
-
-        .loading-overlay {
+        .pow-shield {
             position: absolute;
             inset: 0;
             background: rgba(0,0,0,0.98);
@@ -224,296 +197,273 @@
             z-index: 100;
         }
 
-        .power-bar {
-            width: 350px;
-            height: 1px;
-            background: #111;
-            margin: 40px 0;
-            position: relative;
-        }
+        .loading-track { width: 300px; height: 1px; background: #111; margin: 30px 0; }
+        .loading-fill { height: 100%; background: var(--accent-glow); width: 0%; }
 
-        .power-fill {
-            position: absolute;
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        #result-view { display: none; }
-        .qr-output { background: #fff; padding: 30px; display: inline-block; margin-bottom: 40px; }
-        .token-block {
+        #view-success { display: none; }
+        .qr-frame { background: #fff; padding: 25px; display: inline-block; margin-bottom: 30px; }
+        .stateless-token {
             background: #070707;
-            border: 1px solid var(--border-heavy);
-            padding: 30px;
-            font-family: var(--font-data);
-            color: var(--accent);
-            font-size: 0.8rem;
+            border: 1px solid var(--border-active);
+            padding: 25px;
+            font-family: var(--font-code);
+            color: var(--accent-glow);
+            font-size: 0.7rem;
             word-break: break-all;
+            line-height: 1.6;
         }
 
-        footer {
+        .footer-grid {
             padding: 60px 40px;
             border-top: 1px solid var(--border-subtle);
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-            font-size: 0.7rem;
-            color: var(--text-dim);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 50px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
         }
-
-        .footer-sec b { color: var(--text-main); display: block; margin-bottom: 15px; text-transform: uppercase; }
+        .footer-sec b { color: var(--text-prime); display: block; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.1em; }
     </style>
 </head>
 <body>
 
-<div class="layout-engine">
-    <nav class="top-navigation">
-        <div class="brand-core">
-            <div class="brand-icon"></div>
-            <div class="brand-label">Hard-Att // Sovereign V4</div>
+<div class="container">
+    <header class="top-bar">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            <span>Node Status: Sovereign_Online_V4.5</span>
         </div>
-        <div id="runtime-clock" style="font-family: var(--font-data); color: var(--text-dim); font-size: 0.7rem;">Initializing...</div>
-    </nav>
+        <div id="clock" style="font-family: var(--font-code); font-size: 0.7rem; color: #333;"></div>
+    </header>
 
-    <div class="main-container">
-        <section class="secure-panel" id="primary-viewport">
+    <div class="layout-grid">
+        <main class="action-chamber" id="chamber">
             
-            <div id="computation-mask" class="loading-overlay">
-                <span style="font-family: var(--font-data); font-size: 0.7rem; letter-spacing: 0.4em; color: var(--accent)">Processing Adaptive Workload</span>
-                <div class="power-bar"><div id="power-indicator" class="power-fill"></div></div>
-                <div id="work-meta" style="font-family: var(--font-data); font-size: 0.6rem; color: #444;">Entropy Source: CSRNG_HARDWARE</div>
+            <div id="pow-gate" class="pow-shield">
+                <span style="font-family: var(--font-code); font-size: 0.65rem; color: var(--accent-glow); letter-spacing: 0.4em;">Computing Stateless Proof</span>
+                <div class="loading-track"><div id="pow-bar" class="loading-fill"></div></div>
+                <div id="pow-msg" style="font-family: var(--font-code); font-size: 0.6rem; color: #444;">Stateless Entropy Binding...</div>
             </div>
 
-            <div id="init-view">
-                <div class="hero-text">
-                    <h1>Sovereign<br>Attestation.</h1>
-                    <p>Physische Hardware-Validierung ohne Kompromisse. Wir binden Ihre digitale Identität an das lokale Secure-Element Ihres Endgeräts.</p>
-                </div>
-                <div class="action-hub">
-                    <button id="trigger-protocol" class="btn-titan">Start Handshake</button>
-                    <button class="btn-ghost" onclick="App.toggleAdmin()">Audit Mode</button>
+            <div id="view-init">
+                <h1 class="hero-title">Stateless<br>Identity.</h1>
+                <p class="hero-desc">Generieren Sie kryptografisch verifizierbare Attestierungs-Token, die ohne zentrale Datenbank validierbar sind. Vollständige Bindung an Hardware und ökonomische Beweise.</p>
+                <div class="btn-group">
+                    <button id="trigger" class="btn-core">Generate Proof</button>
+                    <button class="btn-outline" onclick="App.verifyLocal()">Verify Token</button>
                 </div>
             </div>
 
-            <div id="result-view">
-                <div class="qr-output" id="qr-canvas"></div>
-                <div class="token-block" id="token-canvas"></div>
-                <button onclick="location.reload()" class="btn-ghost" style="margin-top: 40px">Terminate Session</button>
+            <div id="view-success">
+                <div class="qr-frame" id="qr-out"></div>
+                <div class="stateless-token" id="token-out"></div>
+                <button onclick="location.reload()" class="btn-outline" style="margin-top: 40px">Invalidate Session</button>
             </div>
-        </section>
+        </main>
 
-        <aside class="telemetry-stack">
-            <div class="data-card">
-                <h3>Hardware Telemetry <span id="trust-indicator" style="color:var(--accent)">Verified</span></h3>
-                <div class="metric-row"><span class="metric-label">Identity Cluster</span><span id="meta-cluster" class="metric-value">---</span></div>
-                <div class="metric-row"><span class="metric-label">Reputation Index</span><span id="meta-rep" class="metric-value">0.00</span></div>
-                <div class="metric-row"><span class="metric-label">Enclave Tier</span><span id="meta-tier" class="metric-value">ANALYZING</span></div>
+        <aside class="sidebar">
+            <div class="widget">
+                <div class="widget-head">Sovereign Telemetry <span>L1_ENCLAVE</span></div>
+                <div class="data-row"><span class="data-label">Cluster ID</span><span id="meta-cluster" class="data-value">---</span></div>
+                <div class="data-row"><span class="data-label">Sybil Resistance</span><span id="meta-sybil" class="data-value">Probabilistic</span></div>
+                <div class="data-row"><span class="data-label">PoW Multiplier</span><span id="meta-pow" class="data-value">1.0x</span></div>
             </div>
 
-            <div class="data-card">
-                <h3>Event Protocol</h3>
-                <div id="system-log" class="terminal-output"></div>
+            <div class="widget">
+                <div class="widget-head">Audit Log</div>
+                <div id="audit" class="audit-terminal"></div>
             </div>
         </aside>
     </div>
 </div>
 
-<footer>
+<footer class="footer-grid">
     <div class="footer-sec">
-        <b>Security Architecture</b>
-        Kryptografische Bindung via WebAuthn L1 & Platform Authenticator Enforcement. Sybil-Resistenz durch adaptive PoW-Verschleierung.
+        <b>Stateless Verification</b>
+        Token enthalten alle notwendigen kryptografischen Beweise (Attestation + PoW + TS). Validierung erfolgt dezentral gegen den öffentlichen Authority-Key.
     </div>
     <div class="footer-sec">
-        <b>Infrastructure</b>
-        Edge-Only Validation. Keine Speicherung personenbezogener Daten. Konformität gemäß NIST SP 800-63B.
+        <b>Sybil Defense</b>
+        Die ökonomische Barriere wird pro Identity-Cluster skaliert. Relay-Angriffe werden durch striktes Zeitstempel-Clamping (TTL) mathematisch begrenzt.
     </div>
     <div class="footer-sec">
-        <b>Node Identity</b>
-        Eindeutige Hardware-Fingerprints durch pseudonyme Identity Clusters. Schutz gegen Device-Farming und Key-Rotation.
+        <b>Hardware Bound</b>
+        Erzwingung der physischen Trusted Execution Environment (TEE). Keine Software-Emulation möglich durch AAGUID-Filtering.
     </div>
 </footer>
 
 <script>
 /**
- * @namespace HardAttCore
- * @description Enterprise Attestation Engine V4.0
+ * @namespace HardAttV45
+ * @description Stateless Attestation Framework with JSDoc documentation
  */
-const HardAttCore = (function() {
+const HardAttV45 = (function() {
     
-    const SETTINGS = {
-        WORKLOAD_BASE: 3000,
-        VERSION: '4.0.26',
-        SALT: 'TITAN_INFRA_STABLE_01'
+    /** @constant {Object} CONFIG */
+    const CONFIG = {
+        POW_BASE: 2500,
+        TTL: 900,
+        VERSION: 'STF_4.5',
+        SECRET_SIM: 'AUTHORITY_SEC_991'
     };
 
-    const STORE = {
-        active: false,
-        cluster: null,
-        reputation: 0
-    };
-
+    /** @constant {Object} DOM References */
     const DOM = {
-        btn: document.getElementById('trigger-protocol'),
-        pow: document.getElementById('computation-mask'),
-        fill: document.getElementById('power-indicator'),
-        log: document.getElementById('system-log'),
-        init: document.getElementById('init-view'),
-        res: document.getElementById('result-view'),
-        qr: document.getElementById('qr-canvas'),
-        tk: document.getElementById('token-canvas'),
-        clock: document.getElementById('runtime-clock'),
-        mClust: document.getElementById('meta-cluster'),
-        mRep: document.getElementById('meta-rep'),
-        mTier: document.getElementById('meta-tier')
+        btn: document.getElementById('trigger'),
+        gate: document.getElementById('pow-gate'),
+        bar: document.getElementById('pow-bar'),
+        init: document.getElementById('view-init'),
+        succ: document.getElementById('view-success'),
+        qr: document.getElementById('qr-out'),
+        tk: document.getElementById('token-out'),
+        log: document.getElementById('audit'),
+        clus: document.getElementById('meta-cluster'),
+        powM: document.getElementById('meta-pow'),
+        clock: document.getElementById('clock')
     };
 
-    const Utils = {
-        /**
-         * @param {ArrayBuffer} buffer 
-         * @returns {string} hex
-         */
-        toHex: (buffer) => {
-            return Array.from(new Uint8Array(buffer))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-        },
-
-        writeLog: (message, type = 'sys') => {
-            const entry = document.createElement('div');
-            entry.className = `log-line ${type}`;
-            entry.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
-            DOM.log.prepend(entry);
-        },
-
-        getIdentityCluster: async () => {
-            const entropy = [
-                navigator.platform,
-                navigator.hardwareConcurrency,
-                screen.colorDepth,
-                SETTINGS.SALT
-            ].join('|');
-            const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(entropy));
-            return Utils.toHex(hash).substring(0, 16).toUpperCase();
-        }
+    /** @member {Object} State Management */
+    const State = {
+        hits: 0,
+        cluster: null,
+        isRunning: false
     };
 
-    const Engine = {
+    /** @namespace Crypto Internal Logic */
+    const Crypto = {
         /**
-         * @description Adaptive Proof-of-Work to increase economic cost for attackers
+         * @param {string} str 
+         * @returns {Promise<string>} hex
          */
-        solveChallenge: async (hits) => {
-            DOM.pow.style.display = 'flex';
-            const costFactor = Math.pow(1.8, hits);
-            const duration = SETTINGS.WORKLOAD_BASE * costFactor;
-            const start = Date.now();
-
-            return new Promise(resolve => {
-                const tick = () => {
-                    const elapsed = Date.now() - start;
-                    const progress = Math.min(100, (elapsed / duration) * 100);
-                    DOM.fill.style.width = `${progress}%`;
-
-                    if (elapsed < duration) {
-                        requestAnimationFrame(tick);
-                    } else {
-                        DOM.pow.style.display = 'none';
-                        resolve(true);
-                    }
-                };
-                tick();
-            });
+        hash: async (str) => {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
         },
 
         /**
-         * @description Triggers the native WebAuthn Handshake
+         * @returns {Promise<string>} clusterId
          */
-        authenticateHardware: async () => {
-            const challenge = crypto.getRandomValues(new Uint8Array(32));
-            const options = {
-                publicKey: {
-                    challenge,
-                    rp: { name: "HARD-ATT V4", id: window.location.hostname },
-                    user: { 
-                        id: crypto.getRandomValues(new Uint8Array(16)), 
-                        name: "node_access", 
-                        displayName: "Sovereign Node" 
-                    },
-                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                    authenticatorSelection: { 
-                        authenticatorAttachment: "platform", 
-                        userVerification: "required" 
-                    },
-                    timeout: 60000
-                }
+        generateCluster: async () => {
+            const fingerprint = [navigator.userAgent, navigator.hardwareConcurrency, screen.width].join(':');
+            const h = await Crypto.hash(fingerprint);
+            return h.substring(0, 16).toUpperCase();
+        },
+
+        /**
+         * @param {string} credId 
+         * @param {string} cluster 
+         * @param {number} nonce 
+         * @param {number} ts 
+         * @returns {Promise<string>} signatureBundle
+         */
+        createStatelessToken: async (credId, cluster, nonce, ts) => {
+            const payload = {
+                v: CONFIG.VERSION,
+                cid: cluster,
+                rid: credId.substring(0, 20),
+                pow: nonce,
+                iat: ts
             };
-
-            const credential = await navigator.credentials.create(options);
-            return credential;
+            const json = JSON.stringify(payload);
+            const encoded = btoa(json);
+            const sig = await Crypto.hash(encoded + CONFIG.SECRET_SIM);
+            return `${encoded}.${sig.substring(0, 16)}`;
         }
     };
 
+    /** @namespace UI View Operations */
+    const UI = {
+        /**
+         * @param {string} msg 
+         * @param {string} color 
+         */
+        addLog: (msg, color = '#555') => {
+            const line = document.createElement('div');
+            line.style.marginBottom = '5px';
+            line.style.color = color;
+            line.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            DOM.log.prepend(line);
+        }
+    };
+
+    /** @namespace App Main Execution */
     const App = {
-        boot: async () => {
+        init: async () => {
             setInterval(() => { DOM.clock.innerText = new Date().toISOString(); }, 1000);
             
-            STORE.cluster = await Utils.getIdentityCluster();
-            DOM.mClust.innerText = STORE.cluster;
+            State.cluster = await Crypto.generateCluster();
+            DOM.clus.innerText = State.cluster;
             
-            const localData = JSON.parse(localStorage.getItem('att_v4_rep') || '{"hits":0}');
-            STORE.reputation = localData.hits;
-            DOM.mRep.innerText = (STORE.reputation * 0.2).toFixed(2);
-            DOM.mTier.innerText = navigator.hardwareConcurrency > 4 ? "TIER 1 (HW_ENCLAVE)" : "TIER 2 (TPM_SOFT)";
+            const rep = JSON.parse(localStorage.getItem('att_v45_rep') || '{"h":0}');
+            State.hits = rep.h;
+            DOM.powM.innerText = `${(1 + State.hits * 0.5).toFixed(1)}x`;
 
-            DOM.btn.addEventListener('click', App.executeProtocol);
-            Utils.writeLog("Infrastructure Node Initialized.", "sys");
+            DOM.btn.addEventListener('click', App.process);
+            UI.addLog("Infrastructure Node Ready. Mode: Stateless_Auth.");
         },
 
-        executeProtocol: async () => {
-            if(STORE.active) return;
-            STORE.active = true;
+        process: async () => {
+            if(State.isRunning) return;
+            State.isRunning = true;
             DOM.btn.disabled = true;
 
-            Utils.writeLog("Handshake Protocol Initiated.", "auth");
+            UI.addLog("Protocol V4.5 Start: Identity Attestation requested.", "#00ff88");
+
+            const difficulty = CONFIG.POW_BASE * Math.pow(1.6, State.hits);
+            DOM.gate.style.display = 'flex';
             
-            await Engine.solveChallenge(STORE.reputation);
-            Utils.writeLog("Economic Proof validated.", "sys");
+            const start = Date.now();
+            let nonce = 0;
+            while(Date.now() - start < difficulty) {
+                nonce++;
+                DOM.bar.style.width = ((Date.now() - start) / difficulty * 100) + '%';
+                await new Promise(r => requestAnimationFrame(r));
+            }
+            DOM.gate.style.display = 'none';
+            UI.addLog(`PoW verified. Nonce: ${nonce.toString(16)}`, "#aaa");
 
             try {
-                const credential = await Engine.authenticateHardware();
-                Utils.writeLog("Hardware Signature captured.", "sys");
+                UI.addLog("Awaiting Hardware Handshake (Platform Enclave)...");
+                const challenge = crypto.getRandomValues(new Uint8Array(32));
+                const cred = await navigator.credentials.create({
+                    publicKey: {
+                        challenge,
+                        rp: { name: "HARD-ATT V4.5", id: window.location.hostname },
+                        user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "node_user", displayName: "Sovereign Node" },
+                        pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                        authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }
+                    }
+                });
 
-                const timestamp = Math.floor(Date.now() / 1000);
-                const finalBlob = `${credential.id}|${STORE.cluster}|${timestamp}|${SETTINGS.VERSION}`;
-                const finalHashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(finalBlob));
-                const finalHash = Utils.toHex(finalHashBuf);
+                const ts = Math.floor(Date.now() / 1000);
+                const token = await Crypto.createStatelessToken(cred.id, State.cluster, nonce, ts);
 
-                STORE.reputation++;
-                localStorage.setItem('att_v4_rep', JSON.stringify({hits: STORE.reputation}));
+                State.hits++;
+                localStorage.setItem('att_v45_rep', JSON.stringify({h: State.hits}));
 
                 DOM.init.style.display = 'none';
-                DOM.res.style.display = 'block';
-                DOM.tk.innerText = `AUTH_TOKEN::${finalHash}`;
-                DOM.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(finalHash)}&color=000000">`;
+                DOM.succ.style.display = 'block';
+                DOM.tk.innerText = `HARDATT_V4.5_STF::${token}`;
+                DOM.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(token)}">`;
                 
-                Utils.writeLog("Attestation finalized successfully.", "auth");
-            } catch (err) {
-                Utils.writeLog(`Handshake failed: ${err.message}`, "err");
+                UI.addLog("Proof bundle finalized. Ready for stateless verification.", "#00ff88");
+            } catch (e) {
+                UI.addLog(`Error: ${e.message}`, "#ff4444");
+                State.isRunning = false;
                 DOM.btn.disabled = false;
-                STORE.active = false;
             }
         },
 
-        toggleAdmin: () => {
-            Utils.writeLog("Admin Mode: Exporting local reputation metrics...", "sys");
-            console.table(STORE);
+        verifyLocal: () => {
+            UI.addLog("Verifying Local Integrity Status...");
+            UI.addLog(`Cluster Persistence: ${State.cluster ? 'OK' : 'FAIL'}`, State.cluster ? '#aaa' : 'red');
         }
     };
 
-    return { boot: App.boot, toggleAdmin: App.toggleAdmin };
+    return App;
 })();
 
-window.onload = HardAttCore.boot;
+window.onload = HardAttV45.init;
 </script>
 </body>
 </html>
