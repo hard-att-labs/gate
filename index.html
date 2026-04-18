@@ -3,81 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HARD-ATT | Hardware Attestation Service</title>
+    <title>HARD-ATT | Hardware Attestation Layer</title>
     <style>
         :root {
-            --bg: #0a0a0a;
+            --bg: #030303;
             --accent: #00ff88;
             --text-main: #ffffff;
-            --text-dim: #666666;
-            --card-bg: #111111;
-            --border: #222222;
+            --text-dim: #777777;
+            --card-bg: #0c0c0c;
+            --border: #1a1a1a;
+            --shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
+            justify-content: flex-start;
+            min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         .app-container {
             width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            box-sizing: border-box;
+            max-width: 380px;
+            margin-top: calc(15vh - 20px);
+            margin-bottom: 50px;
+            animation: appIn 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .shield-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 30px;
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 25px;
             display: block;
             fill: var(--accent);
-            filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.3));
+            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.2));
         }
 
         header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
         h1 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            letter-spacing: 3px;
             margin: 0;
             text-transform: uppercase;
         }
 
         .subtitle {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-dim);
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .auth-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 24px;
+            border-radius: 28px;
             padding: 30px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .status-terminal {
             font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
-            margin-bottom: 30px;
-            height: 20px;
+            margin-bottom: 25px;
+            letter-spacing: 0.5px;
+            height: 18px;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
+        .status-terminal::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--text-dim);
+            border-radius: 50%;
+            margin-right: 8px;
+            transition: background 0.3s;
+        }
+
+        .status-terminal.active::before { background: var(--accent); animation: pulse 1.5s infinite; }
+        .status-terminal.error::before { background: #ff4444; }
 
         .main-button {
             background: var(--text-main);
@@ -89,54 +113,140 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
         }
 
-        .main-button:active {
-            transform: scale(0.98);
+        .main-button:hover { background: #eee; }
+        .main-button:active { transform: scale(0.97); }
+        .main-button:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+
+        .button-loading {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            left: 50%;
+            top: 50%;
+            margin-left: -11.5px;
+            margin-top: -11.5px;
         }
 
-        .main-button:disabled {
-            background: var(--border);
-            color: var(--text-dim);
-            cursor: not-allowed;
-        }
+        .main-button.loading { color: transparent; }
+        .main-button.loading .button-loading { display: block; }
 
         #result-area {
             display: none;
             margin-top: 30px;
             padding-top: 30px;
             border-top: 1px solid var(--border);
-            animation: fadeIn 0.6s ease-out;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .hash-box {
-            background: #000;
+            background: rgba(0,0,0,0.5);
             padding: 15px;
             border-radius: 12px;
-            font-family: monospace;
-            font-size: 0.7rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.65rem;
             color: var(--accent);
             word-break: break-all;
             text-align: left;
             margin-bottom: 20px;
-            border: 1px dashed var(--accent);
+            border: 1px solid #111;
         }
 
         .share-btn {
             background: transparent;
             color: var(--text-main);
             border: 1px solid var(--border);
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 12px 20px;
+            border-radius: 12px;
             font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
+            transition: background 0.2s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .explainer-container {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 50px;
+            border-top: 1px solid #111;
+            padding-top: 50px;
+            opacity: 0;
+            animation: explainerIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation-delay: 0.5s;
+        }
+
+        .explainer-title {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .explainer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .info-card {
+            background: #080808;
+            border: 1px solid #111;
+            padding: 25px;
+            border-radius: 20px;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-dim);
+            margin-bottom: 15px;
+        }
+
+        .info-card h3 {
+            margin: 0 0 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .info-card p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        footer {
+            width: 100%;
+            text-align: center;
+            padding: 30px 0;
+            font-size: 0.7rem;
+            color: #333;
+            margin-top: auto;
+        }
+
+        @keyframes appIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes explainerIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            .app-container { margin-top: calc(10vh - 15px); }
+            .auth-card { padding: 25px; }
         }
     </style>
 </head>
@@ -148,13 +258,16 @@
     </svg>
 
     <header>
-        <h1>Hard-Att</h1>
-        <div class="subtitle">Hardware-Level Human Verification</div>
+        <h1>HARD-ATT</h1>
+        <div class="subtitle">Hardware-Level Human Proof Layer</div>
     </header>
 
     <div class="auth-card">
         <div id="status" class="status-terminal">SYSTEM_READY</div>
-        <button id="startBtn" class="main-button">AUTHENTIFIZIEREN</button>
+        <button id="startBtn" class="main-button">
+            AUTHENTIFIZIEREN
+            <div class="button-loading"></div>
+        </button>
 
         <div id="result-area">
             <div class="hash-box" id="hashDisplay"></div>
@@ -162,6 +275,26 @@
         </div>
     </div>
 </div>
+
+<div class="explainer-container">
+    <h2 class="explainer-title">Verifikations-Protokoll</h2>
+    <div class="explainer-grid">
+        <div class="info-card">
+            <svg class="info-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 12 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            <h3>Integrität</h3>
+            <p>Die Authentifizierung basiert auf geräteeigenen Krypto-Modulen. Dies verhindert skalierbare Bot-Angriffe durch physische Hardware-Bindung.</p>
+        </div>
+        <div class="info-card">
+            <svg class="info-icon" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            <h3>Zero Knowledge</h3>
+            <p>Es erfolgt kein Zugriff auf persönliche Identifikationsmerkmale. Die Verifizierung bestätigt lediglich den Ursprung eines legitimen Nutzers.</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    © 2026 HARD-ATT. MVP BUILD 0.9.
+</footer>
 
 <script>
     const startBtn = document.getElementById('startBtn');
@@ -172,13 +305,16 @@
     startBtn.addEventListener('click', async () => {
         try {
             startBtn.disabled = true;
+            startBtn.classList.add('loading');
+            statusText.classList.remove('error');
+            statusText.classList.add('active');
             statusText.innerText = "INITIALIZING_SECURE_ENCLAVE...";
 
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
+            const challengeBuffer = new Uint8Array(32);
+            window.crypto.getRandomValues(challengeBuffer);
 
             const options = {
-                challenge: challenge,
+                challenge: challengeBuffer,
                 rp: { name: "Hard-Att Service", id: window.location.hostname },
                 user: {
                     id: window.crypto.getRandomValues(new Uint8Array(16)),
@@ -197,7 +333,8 @@
 
             const credential = await navigator.credentials.create({ publicKey: options });
 
-            statusText.style.color = "var(--accent)";
+            if ('vibrate' in navigator) navigator.vibrate([10, 30, 10, 30]);
+
             statusText.innerText = "ATTESTATION_SUCCESS_MATCH";
 
             const hashBuffer = await crypto.subtle.digest('SHA-256', credential.rawId);
@@ -205,16 +342,18 @@
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
             setTimeout(() => {
+                startBtn.classList.remove('loading');
                 startBtn.style.display = "none";
                 resultArea.style.display = "block";
                 hashDisplay.innerText = hashHex;
-            }, 600);
+            }, 800);
 
         } catch (err) {
             startBtn.disabled = false;
-            statusText.style.color = "#ff4444";
+            startBtn.classList.remove('loading');
+            statusText.classList.remove('active');
+            statusText.classList.add('error');
             statusText.innerText = "AUTH_FAILED: " + err.name;
-            console.error(err);
         }
     });
 
@@ -222,6 +361,7 @@
         navigator.clipboard.writeText(hashDisplay.innerText);
         const originalText = document.getElementById('copyBtn').innerText;
         document.getElementById('copyBtn').innerText = "KOPIERT!";
+        if ('vibrate' in navigator) navigator.vibrate(15);
         setTimeout(() => {
             document.getElementById('copyBtn').innerText = originalText;
         }, 2000);
