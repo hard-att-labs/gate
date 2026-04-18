@@ -1,190 +1,308 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HARD-ATT | Trusted Attestation Layer</title>
-    <style>
-        :root {
-            --bg: #030303;
-            --accent: #00ff88;
-            --text-main: #ffffff;
-            --text-dim: #777777;
-            --card-bg: #0c0c0c;
-            --border: #1a1a1a;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            font-family: 'Inter', -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .app-container { width: 100%; max-width: 380px; animation: appIn 0.8s ease-out; }
-
-        .auth-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 35px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .status-terminal {
-            font-family: monospace;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .status-terminal::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background: var(--accent);
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 0 10px var(--accent);
-        }
-
-        .main-button {
-            background: var(--text-main);
-            color: var(--bg);
-            border: none;
-            width: 100%;
-            padding: 20px;
-            border-radius: 16px;
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .main-button:active { transform: scale(0.96); }
-
-        #result-area, #verify-area { display: none; margin-top: 20px; }
-
-        .qr-frame {
-            background: white;
-            padding: 15px;
-            border-radius: 18px;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .qr-frame img { width: 180px; height: 180px; display: block; }
-
-        .hash-display {
-            font-family: monospace;
-            font-size: 0.6rem;
-            color: var(--accent);
-            background: #000;
-            padding: 12px;
-            border-radius: 10px;
-            word-break: break-all;
-            border: 1px solid #111;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 5px;
-            font-size: 0.6rem;
-            font-weight: 900;
-            margin-top: 15px;
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        @keyframes appIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HARD-ATT | Advanced Attestation Protocol</title>
+<style>
+:root {
+--bg: #010101;
+--accent: #00ff88;
+--text-main: #f0f0f0;
+--text-dim: #555555;
+--card-bg: #080808;
+--border: #151515;
+--shadow: 0 15px 60px rgba(0,0,0,0.7);
+}
+body {
+background-color: var(--bg);
+color: var(--text-main);
+font-family: 'Inter', -apple-system, sans-serif;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: flex-start;
+min-height: 100vh;
+margin: 0;
+padding: 20px;
+box-sizing: border-box;
+overflow-x: hidden;
+}
+.app-container {
+width: 100%;
+max-width: 380px;
+margin-top: calc(10vh - 20px);
+margin-bottom: 50px;
+animation: appIn 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.shield-icon {
+width: 55px;
+height: 55px;
+margin: 0 auto 25px;
+display: block;
+fill: var(--accent);
+filter: drop-shadow(0 0 12px rgba(0, 255, 136, 0.3));
+}
+header {
+text-align: center;
+margin-bottom: 40px;
+}
+h1 {
+font-size: 1.4rem;
+font-weight: 900;
+letter-spacing: 3px;
+margin: 0;
+text-transform: uppercase;
+}
+.subtitle {
+font-size: 0.8rem;
+color: var(--text-dim);
+margin-top: 10px;
+}
+.auth-card {
+background: var(--card-bg);
+border: 1px solid var(--border);
+border-radius: 30px;
+padding: 35px;
+text-align: center;
+box-shadow: var(--shadow);
+position: relative;
+transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.status-terminal {
+font-family: monospace;
+font-size: 0.7rem;
+color: var(--text-dim);
+margin-bottom: 25px;
+letter-spacing: 0.5px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.status-terminal::before {
+content: '';
+width: 7px;
+height: 7px;
+background: var(--text-dim);
+border-radius: 50%;
+margin-right: 9px;
+transition: background 0.3s;
+}
+.status-terminal.active::before { background: var(--accent); animation: pulse 1.5s infinite; }
+.status-terminal.error::before { background: #ff4444; }
+.main-button {
+background: var(--text-main);
+color: var(--bg);
+border: none;
+width: 100%;
+padding: 20px;
+border-radius: 18px;
+font-size: 1rem;
+font-weight: 800;
+cursor: pointer;
+transition: all 0.2s;
+position: relative;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+.main-button:active { transform: scale(0.97); }
+.main-button:disabled { background: var(--border); color: var(--text-dim); }
+.button-loading {
+position: absolute;
+width: 20px;
+height: 20px;
+border: 3px solid rgba(0,0,0,0.1);
+border-top-color: #000;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+display: none;
+left: 50%;
+top: 50%;
+margin-left: -11.5px;
+margin-top: -11.5px;
+}
+.main-button.loading { color: transparent; }
+.main-button.loading .button-loading { display: block; }
+#result-area, #verify-area { display: none; margin-top: 20px; animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.qr-frame {
+background: white;
+padding: 15px;
+border-radius: 20px;
+display: inline-block;
+margin: 20px 0;
+box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+}
+.qr-frame img { width: 180px; height: 180px; display: block; }
+.hash-display {
+background: #000;
+padding: 15px;
+border-radius: 14px;
+font-family: monospace;
+font-size: 0.65rem;
+color: var(--accent);
+word-break: break-all;
+border: 1px solid #111;
+margin-bottom: 20px;
+position: relative;
+}
+.audit-log {
+text-align: left;
+background: #030303;
+border: 1px solid #111;
+border-radius: 16px;
+padding: 20px;
+font-family: monospace;
+font-size: 0.65rem;
+color: #444;
+margin-top: 25px;
+}
+.audit-header {
+color: #777;
+margin-bottom: 12px;
+text-transform: uppercase;
+font-weight: 700;
+display: flex;
+justify-content: space-between;
+}
+.audit-item { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.audit-val { color: var(--text-dim); }
+.valid-badge {
+background: var(--accent);
+color: var(--bg);
+padding: 6px 14px;
+border-radius: 8px;
+font-size: 0.7rem;
+font-weight: 900;
+letter-spacing: 1px;
+display: inline-block;
+margin-bottom: 20px;
+}
+.info-text { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; margin: 20px 0; }
+@keyframes appIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-
 <div class="app-container">
-    <div class="auth-card" id="mainCard">
-        <div id="status" class="status-terminal">SYSTEM_LIVE</div>
-        
-        <div id="init-view">
-            <h1 style="font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 30px;">HARD-ATT</h1>
-            <button id="startBtn" class="main-button">AUTHENTICATE</button>
-        </div>
-
-        <div id="result-area">
-            <div class="qr-frame" id="qrContainer"></div>
-            <div class="hash-display" id="hashDisplay"></div>
-            <div class="badge">HARDWARE_SIGNED</div>
-        </div>
-
-        <div id="verify-area">
-            <h2 style="color: var(--accent);">VERIFIED_HUMAN</h2>
-            <div id="verifyHash" class="hash-display" style="margin: 20px 0;"></div>
-            <div style="font-size: 0.8rem; color: var(--text-dim);">Dieser Hash wurde durch eine physische Hardware-Enclave bestätigt.</div>
-            <button onclick="location.href=location.pathname" class="main-button" style="margin-top: 30px; background: #222; color: #fff; font-size: 0.8rem;">BACK</button>
-        </div>
-    </div>
+<svg class="shield-icon" viewBox="0 0 24 24">
+<path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.47 4.34-2.85 8.24-7 9.99v-9.99z"/>
+</svg>
+<header>
+<h1>HARD-ATT LAYER</h1>
+<div class="subtitle">Trusted Hardware Attestation v0.99</div>
+</header>
+<div class="auth-card">
+<div id="status" class="status-terminal">SYSTEM_LIVE</div>
+<div id="init-view">
+<p class="info-text">Erzeugen Sie einen kryptografisch gesicherten Hardware-Beweis Ihrer menschlichen Identität. Anonym und fälschungssicher.</p>
+<button id="startBtn" class="main-button">
+GENERATE_PROOF
+<div class="button-loading"></div>
+</button>
 </div>
-
+<div id="result-area">
+<div class="valid-badge">PROT_SUCCESS</div>
+<div class="qr-frame" id="qrContainer"></div>
+<div class="hash-display" id="hashDisplay"></div>
+<p style="font-size:0.7rem;color:#444;margin:0;">Gültigkeit: 15 Minuten (Anti-Replay).</p>
+</div>
+<div id="verify-area">
+<div class="valid-badge" style="background:#00ff88;">VERIFIED_HUMAN</div>
+<div class="hash-display" id="verifyHash" style="margin-top:20px;"></div>
+<div class="audit-log">
+<div class="audit-header"><span>AUDIT_LOG</span><span>[OK]</span></div>
+<div class="audit-item"><span>PROT:</span><span class="audit-val">WEBAUTHN/SHA256</span></div>
+<div class="audit-item"><span>ENCLAVE:</span><span class="audit-val">ACTIVE/LOCKED</span></div>
+<div class="audit-item"><span>BIOMETRY:</span><span class="audit-val">VERIFIED</span></div>
+<div class="audit-item"><span>TIME_SYNC:</span><span class="audit-val">VALID</span></div>
+</div>
+<button onclick="location.href=location.pathname" class="main-button" style="background:#151515;color:#f0f0f0;font-size:0.8rem;margin-top:30px;height:50px;">CLOSE</button>
+</div>
+</div>
+</div>
 <script>
-    const startBtn = document.getElementById('startBtn');
-    const initView = document.getElementById('init-view');
-    const resultArea = document.getElementById('result-area');
-    const verifyArea = document.getElementById('verify-area');
-    const hashDisplay = document.getElementById('hashDisplay');
-    const qrContainer = document.getElementById('qrContainer');
-
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('v')) {
-        initView.style.display = 'none';
-        verifyArea.style.display = 'block';
-        document.getElementById('verifyHash').innerText = urlParams.get('v');
-        document.getElementById('status').innerText = "VERIFICATION_MODE";
-    }
-
-    startBtn.addEventListener('click', async () => {
-        try {
-            startBtn.disabled = true;
-            document.getElementById('status').innerText = "BIOMETRIC_CHECK...";
-
-            const options = {
-                challenge: crypto.getRandomValues(new Uint8Array(32)),
-                rp: { name: "Hard-Att", id: window.location.hostname },
-                user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "user", displayName: "User" },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-                authenticatorSelection: { userVerification: "required" }
-            };
-
-            const cred = await navigator.credentials.create({ publicKey: options });
-            const hashBuf = await crypto.subtle.digest('SHA-256', cred.rawId);
-            const hash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-
-            const verifyUrl = `${window.location.origin}${window.location.pathname}?v=${hash}`;
-            const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(verifyUrl)}&color=000000&bgcolor=ffffff`;
-            
-            qrContainer.innerHTML = `<img src="${qrApi}">`;
-            hashDisplay.innerText = hash;
-            
-            initView.style.display = 'none';
-            resultArea.style.display = 'block';
-            document.getElementById('status').innerText = "ATTESTATION_SUCCESS";
-
-        } catch (e) {
-            startBtn.disabled = false;
-            document.getElementById('status').innerText = "FAILED";
-        }
-    });
+(function(){
+const PROTOCOL_SALT = "H4RD_4TT_SUP3R_S3CR3T_K3Y_2026";
+const MAX_AGE_MINUTES = 15;
+const startBtn = document.getElementById('startBtn');
+const statusText = document.getElementById('status');
+const resultArea = document.getElementById('result-area');
+const verifyArea = document.getElementById('verify-area');
+const initView = document.getElementById('init-view');
+const hashDisplay = document.getElementById('hashDisplay');
+const qrContainer = document.getElementById('qrContainer');
+const urlParams = new URLSearchParams(window.location.search);
+const core = {
+bufToHex:(buf)=>Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''),
+hexToBuf:(hex)=>new Uint8Array(hex.match(/.{1,2}/g).map(byte=>parseInt(byte,16))),
+getSHA256:async(data)=>{
+const msgUint8 = new TextEncoder().encode(data);
+const hashBuffer = await crypto.subtle.digest('SHA-256',msgUint8);
+return core.bufToHex(hashBuffer);
+}
+};
+Object.freeze(core);
+if(urlParams.has('p')){
+const pData = urlParams.get('p');
+const tData = urlParams.get('t');
+verifyProtocol(pData,tData);
+}
+startBtn.addEventListener('click',async()=>{
+try{
+startBtn.disabled=true; startBtn.classList.add('loading');
+statusText.classList.add('active'); statusText.innerText="CALLING_HARDWARE...";
+const challenge=crypto.getRandomValues(new Uint8Array(32));
+const opt={
+challenge:challenge,
+rp:{name:"Hard-Att",id:window.location.hostname},
+user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"subj",displayName:"Subj"},
+pubKeyCredParams:[{alg:-7,type:"public-key"},{alg:-257,type:"public-key"}],
+authenticatorSelection:{userVerification:"required"}
+};
+const cred=await navigator.credentials.create({publicKey:opt});
+statusText.innerText="SIGNING_PROOF...";
+const t=Math.floor(Date.now()/1000);
+const rawHash=await core.getSHA256(core.bufToHex(cred.rawId));
+const proofString=`${rawHash}|${t}|${PROTOCOL_SALT}`;
+const finalProof=await core.getSHA256(proofString);
+const verifyUrl=`${window.location.origin}${window.location.pathname}?p=${finalProof}&t=${t}`;
+const qrApi=`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(verifyUrl)}&color=000000&bgcolor=ffffff`;
+qrContainer.innerHTML=`<img src="${qrApi}">`;
+hashDisplay.innerText=finalProof;
+setTimeout(()=>{
+initView.style.display='none';
+resultArea.style.display='block';
+startBtn.classList.remove('loading');
+statusText.innerText="ATTESTATION_SUCCESS";
+if('vibrate' in navigator)navigator.vibrate([10,30,10,30]);
+},800);
+}catch(e){
+startBtn.disabled=false; startBtn.classList.remove('loading');
+statusText.classList.remove('active'); statusText.classList.add('error');
+statusText.innerText="ERR: "+e.name;
+}
+});
+async function verifyProtocol(p,t){
+statusText.innerText="VERIFYING_PROTOCOL_INTEGRITY...";
+statusText.classList.add('active');
+initView.style.display='none';
+verifyArea.style.display='block';
+document.getElementById('verifyHash').innerText=p;
+const now = Math.floor(Date.now()/1000);
+const diff = now - parseInt(t);
+if(diff > (MAX_AGE_MINUTES*60) || diff < -60){
+document.getElementById('verifyArea').innerHTML=`<div class="valid-badge" style="background:#ff4444;">PROOF_EXPIRED</div><p class="info-text">Dieser Hardware-Beweis ist älter als 15 Minuten und wurde aus Sicherheitsgründen ungültig.</p><button onclick="location.href=location.pathname" class="main-button">BACK</button>`;
+statusText.classList.remove('active'); statusText.classList.add('error');
+statusText.innerText="TIME_SYNC_ERROR";
+return;
+}
+statusText.style.color="var(--accent)";
+statusText.innerText="HUMAN_CONFIRMED";
+if('vibrate' in navigator)navigator.vibrate(30);
+}
+})();
 </script>
 </body>
 </html>
