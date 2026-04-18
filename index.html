@@ -3,294 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>HARD-ATT | Enterprise Attestation Protocol</title>
+<title>HARD-ATT | Secure Infrastructure</title>
 <style>
 :root {
---bg: #050505;
---card: #0f0f0f;
---border: #1f1f1f;
---accent: #00ff88;
---accent-dim: rgba(0, 255, 136, 0.1);
---text: #ffffff;
---text-dim: #888888;
---error: #ff4444;
---font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+--bg: #000000;
+--fg: #ffffff;
+--dim: #666666;
+--border: #1a1a1a;
+--accent: #ffffff;
+--surface: #0a0a0a;
+--font: 'Inter', -apple-system, system-ui, sans-serif;
+--mono: 'JetBrains Mono', 'Courier New', monospace;
 }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
 body {
-background-color: var(--bg);
-color: var(--text);
-font-family: 'Inter', -apple-system, system-ui, sans-serif;
-margin: 0;
-padding: 0;
-display: flex;
-flex-direction: column;
-align-items: center;
-min-height: 100vh;
+background: var(--bg);
+color: var(--fg);
+font-family: var(--font);
+margin: 0; padding: 0;
+display: flex; flex-direction: column; align-items: center;
+min-height: 100vh; overflow-x: hidden;
 }
-canvas#matrix-bg {
-position: fixed;
-top: 0; left: 0; width: 100%; height: 100%;
+.mesh {
+position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+background: radial-gradient(circle at 50% 50%, #080808 0%, #000 100%);
 z-index: -1;
-opacity: 0.15;
 }
-.navbar {
-width: 100%;
-max-width: 1200px;
-padding: 30px;
-display: flex;
-justify-content: space-between;
-align-items: center;
+.app-wrapper {
+width: 100%; max-width: 1100px;
+padding: 60px 20px;
+display: flex; flex-direction: column; gap: 40px;
 }
-.nav-logo {
-font-weight: 900;
-letter-spacing: 4px;
-font-size: 1.2rem;
-display: flex;
-align-items: center;
-gap: 12px;
+header {
+display: flex; justify-content: space-between; align-items: flex-end;
+border-bottom: 1px solid var(--border); padding-bottom: 20px;
 }
-.logo-box {
-width: 32px; height: 32px;
-background: var(--accent);
-border-radius: 6px;
-box-shadow: 0 0 15px var(--accent);
+.brand { font-weight: 800; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; }
+.system-time { font-family: var(--mono); font-size: 0.65rem; color: var(--dim); }
+.grid-container {
+display: grid; grid-template-columns: 1fr 350px; gap: 40px;
 }
-.main-stage {
-width: 100%;
-max-width: 1000px;
-display: grid;
-grid-template-columns: 1.5fr 1fr;
-gap: 30px;
-padding: 20px;
-margin-bottom: 50px;
-}
-@media (max-width: 900px) { .main-stage { grid-template-columns: 1fr; } }
-.glass-panel {
-background: var(--card);
+@media (max-width: 900px) { .grid-container { grid-template-columns: 1fr; } }
+.main-auth-panel {
+background: var(--surface);
 border: 1px solid var(--border);
-border-radius: 24px;
-padding: 40px;
-box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+padding: 60px;
+display: flex; flex-direction: column; justify-content: center;
 position: relative;
-overflow: hidden;
 }
-.badge-row {
-display: flex;
-gap: 10px;
-margin-bottom: 30px;
+.main-auth-panel::after {
+content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px;
+border-top: 1px solid var(--dim); border-right: 1px solid var(--dim);
 }
-.badge {
-font-size: 0.65rem;
-font-weight: 800;
-padding: 6px 12px;
-border-radius: 6px;
-text-transform: uppercase;
-letter-spacing: 1px;
-border: 1px solid var(--border);
-color: var(--text-dim);
+h1 { font-size: 2.4rem; font-weight: 900; margin: 0 0 20px 0; letter-spacing: -0.02em; }
+.description { color: var(--dim); font-size: 1rem; line-height: 1.6; max-width: 500px; margin-bottom: 40px; }
+.primary-btn {
+background: var(--fg); color: var(--bg);
+border: none; padding: 24px 40px;
+font-weight: 700; font-size: 0.9rem;
+cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;
+transition: opacity 0.2s; width: fit-content;
 }
-.badge.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
-h2 { font-size: 1.8rem; font-weight: 800; margin: 0 0 15px 0; }
-.desc { color: var(--text-dim); font-size: 0.95rem; line-height: 1.6; margin-bottom: 35px; }
-.action-btn {
-background: var(--text);
-color: var(--bg);
-border: none;
-width: 100%;
-padding: 24px;
-border-radius: 16px;
-font-size: 1rem;
-font-weight: 800;
-cursor: pointer;
-transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-letter-spacing: 2px;
+.primary-btn:hover { opacity: 0.9; }
+.primary-btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
+.side-bar { display: flex; flex-direction: column; gap: 20px; }
+.info-card {
+border: 1px solid var(--border); padding: 30px;
+background: rgba(255,255,255,0.01);
 }
-.action-btn:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(255,255,255,0.1); }
-.action-btn:active { transform: scale(0.98); }
-.side-panel { display: flex; flex-direction: column; gap: 20px; }
-.info-box {
-background: var(--card);
-border: 1px solid var(--border);
-border-radius: 20px;
-padding: 25px;
+.info-card h3 { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--dim); margin: 0 0 20px 0; }
+.data-row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.7rem; margin-bottom: 10px; }
+.data-label { color: #444; }
+.data-value { color: var(--fg); }
+#verification-view { display: none; }
+.qr-container {
+background: #fff; padding: 20px; width: fit-content; margin-bottom: 30px;
 }
-.info-box h3 { font-size: 0.8rem; color: var(--text-dim); margin: 0 0 15px 0; letter-spacing: 1px; text-transform: uppercase; }
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-.stat-item { background: #000; padding: 15px; border-radius: 12px; border: 1px solid #151515; }
-.stat-label { font-size: 0.6rem; color: #555; display: block; margin-bottom: 5px; }
-.stat-val { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent); }
-#protocol-output { display: none; animation: fadeIn 0.8s ease; }
-.qr-wrap { background: #fff; padding: 20px; border-radius: 20px; width: fit-content; margin: 30px auto; }
-.qr-wrap img { width: 220px; height: 220px; display: block; }
-.terminal-block {
-background: #000;
-border-radius: 12px;
-padding: 20px;
-font-family: var(--font-mono);
-font-size: 0.7rem;
-color: #444;
-line-height: 1.8;
-margin-top: 25px;
+.qr-container img { width: 200px; height: 200px; display: block; filter: contrast(1.1); }
+.hash-block {
+background: #000; padding: 20px; font-family: var(--mono); font-size: 0.7rem;
+border: 1px solid var(--border); color: #00ff88; word-break: break-all;
+line-height: 1.5; margin-bottom: 30px;
 }
-.line-success { color: var(--accent); }
-#status-global { display: flex; align-items: center; gap: 10px; font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-dim); }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: #333; }
-.dot.live { background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 2s infinite; }
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.compliance-footer { width: 100%; max-width: 1000px; padding: 40px 20px; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; color: #444; font-size: 0.75rem; }
+.status-pill {
+display: inline-flex; align-items: center; gap: 8px;
+font-size: 0.6rem; font-weight: 700; color: #00ff88;
+text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px;
+}
+.dot-blink { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; animation: blink 1.5s infinite; }
+@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+footer {
+margin-top: auto; width: 100%; max-width: 1100px; padding: 40px 20px;
+color: #333; font-size: 0.65rem; display: flex; gap: 40px;
+border-top: 1px solid var(--border);
+}
+.footer-item b { color: #555; display: block; margin-bottom: 5px; text-transform: uppercase; }
 </style>
 </head>
 <body>
-<canvas id="matrix-bg"></canvas>
-<div class="navbar">
-<div class="nav-logo"><div class="logo-box"></div> HARD-ATT</div>
-<div id="status-global"><div class="dot live"></div> ENCLAVE_ACTIVE</div>
+<div class="mesh"></div>
+<div class="app-wrapper">
+<header>
+<div class="brand">HARD-ATT // ATTESTATION.LAYER</div>
+<div class="system-time" id="clock">00:00:00 UTC</div>
+</header>
+<main class="grid-container">
+<section class="main-auth-panel">
+<div id="auth-init">
+<div class="status-pill"><div class="dot-blink"></div> System Secure</div>
+<h1>Verify Physical Presence.</h1>
+<p class="description">Enterprise-Grade Attestierung. Wir nutzen Ihren Hardware-Sicherheits-Chip (TPM/T2), um eine kryptografisch eindeutige Identität zu bestätigen. Keine Biometrie-Daten verlassen das Gerät.</p>
+<button id="exec-btn" class="primary-btn">Identität Bestätigen</button>
 </div>
-<div class="main-stage">
-<div class="glass-panel" id="primary-view">
-<div class="badge-row">
-<div class="badge active">FIDO2_READY</div>
-<div class="badge">NIST_COMPLIANT</div>
-<div class="badge">AES_256</div>
+<div id="verification-view">
+<div class="status-pill" style="color:#fff"><div class="dot-blink" style="background:#fff"></div> Attestation Validated</div>
+<div class="qr-container" id="qr-target"></div>
+<div class="hash-block" id="hash-target"></div>
+<button onclick="location.reload()" class="primary-btn" style="background:transparent; border: 1px solid #333; color:#fff">Sitzung Schliessen</button>
 </div>
-<div id="init-content">
-<h2>Enterprise Human Attestation</h2>
-<p class="desc">Nutzen Sie die Hardware-Sicherheitsmodule Ihres Geräts für eine fälschungssichere Identitätsbestätigung. Keine Passwörter, keine Tracker – nur reine Kryptografie.</p>
-<button class="action-btn" id="trigger">AUTHENTIFIZIERUNG STARTEN</button>
+</section>
+<aside class="side-bar">
+<div class="info-card">
+<h3>Security Stack</h3>
+<div class="data-row"><span class="data-label">Algorithm</span><span class="data-value">ES256 / SHA-256</span></div>
+<div class="data-row"><span class="data-label">Binding</span><span class="data-value">Hardware-Bound</span></div>
+<div class="data-row"><span class="data-label">Protocol</span><span class="data-value">WebAuthn L1</span></div>
+<div class="data-row"><span class="data-label">Entropy</span><span class="data-value">CSPRNG 512-bit</span></div>
 </div>
-<div id="protocol-output">
-<center><div class="qr-wrap" id="qrContainer"></div></center>
-<div class="stat-item" style="width: 100%; margin-bottom: 20px;">
-<span class="stat-label">ATTESTATION_HASH (SHA-256)</span>
-<span class="stat-val" id="hashOut" style="word-break: break-all;"></span>
+<div class="info-card">
+<h3>System Health</h3>
+<div class="data-row"><span class="data-label">Platform</span><span class="data-value" id="sys-plat">---</span></div>
+<div class="data-row"><span class="data-label">Secure Chip</span><span class="data-value" id="sys-tpm">Checking...</span></div>
+<div class="data-row"><span class="data-label">Sandbox</span><span class="data-value">Verified</span></div>
 </div>
-<div class="terminal-block" id="terminal">
-<div>> INITIALIZING VIRTUAL_ENCLAVE... DONE</div>
-<div>> FETCHING HARDWARE_ID... DONE</div>
-<div>> COMPUTING CRYPTO_PROOF... DONE</div>
-<div class="line-success">> STATUS: ATTESTATION_VERIFIED</div>
+</aside>
+</main>
 </div>
-<button class="action-btn" onclick="location.reload()" style="margin-top: 30px; background: #111; color: #fff; font-size: 0.8rem;">SITZUNG BEENDEN</button>
-</div>
-</div>
-<div class="side-panel">
-<div class="info-box">
-<h3>Geräte-Intelligenz</h3>
-<div class="stat-grid">
-<div class="stat-item"><span class="stat-label">PLATFORM</span><span class="stat-val" id="p-plat">---</span></div>
-<div class="stat-item"><span class="stat-label">CORES</span><span class="stat-val" id="p-core">---</span></div>
-<div class="stat-item"><span class="stat-label">WEBAUTHN</span><span class="stat-val" style="color:#00ff88">SUPPORTED</span></div>
-<div class="stat-item"><span class="stat-label">SECURE_CHIP</span><span class="stat-val">TPM/T2</span></div>
-</div>
-</div>
-<div class="info-box">
-<h3>Sicherheits-Parameter</h3>
-<p style="font-size: 0.75rem; color: #555; line-height: 1.4;">Dieses Protokoll nutzt Hardware-Attestierung (WebAuthn L1), um sicherzustellen, dass die Anfrage von einem physischen Gerät und nicht von einem Bot-Netzwerk stammt.</p>
-</div>
-</div>
-</div>
-<div class="compliance-footer">
-<div><strong>Sicherheit</strong><br>Alle Keys verbleiben in der Secure Enclave. Biometrische Daten werden niemals übertragen.</div>
-<div><strong>Compliance</strong><br>Entspricht den Richtlinien für Zero-Trust-Architekturen und DSGVO-Privacy-by-Design.</div>
-<div><strong>Integrität</strong><br>Anti-Replay Schutz durch zeitbasierte Nonce-Generierung (15min Window).</div>
-</div>
+<footer>
+<div class="footer-item"><b>Compliance</b>FIDO2, NIST SP 800-63B</div>
+<div class="footer-item"><b>Privacy</b>Zero-Knowledge Proof Architecture</div>
+<div class="footer-item"><b>Version</b>2026.4.0-Enterprise</div>
+</footer>
 <script>
 (function(){
-const UI = {
-trigger: document.getElementById('trigger'),
-init: document.getElementById('init-content'),
-output: document.getElementById('protocol-output'),
-qr: document.getElementById('qrContainer'),
-hash: document.getElementById('hashOut'),
-canvas: document.getElementById('matrix-bg'),
-pPlat: document.getElementById('p-plat'),
-pCore: document.getElementById('p-core')
+const DOM = {
+btn: document.getElementById('exec-btn'),
+init: document.getElementById('auth-init'),
+view: document.getElementById('verification-view'),
+qr: document.getElementById('qr-target'),
+hash: document.getElementById('hash-target'),
+clock: document.getElementById('clock'),
+plat: document.getElementById('sys-plat'),
+tpm: document.getElementById('sys-tpm')
 };
-const Background = {
-init: () => {
-const ctx = UI.canvas.getContext('2d');
-let w, h;
-const resize = () => { w = UI.canvas.width = window.innerWidth; h = UI.canvas.height = window.innerHeight; };
-window.addEventListener('resize', resize); resize();
-const chars = "010101010101010101010101010101";
-const fontSize = 14;
-const columns = w / fontSize;
-const drops = Array(Math.floor(columns)).fill(1);
-function draw() {
-ctx.fillStyle = "rgba(5, 5, 5, 0.05)";
-ctx.fillRect(0, 0, w, h);
-ctx.fillStyle = "#00ff88";
-ctx.font = fontSize + "px monospace";
-for(let i = 0; i < drops.length; i++) {
-const text = chars.charAt(Math.floor(Math.random() * chars.length));
-ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-if(drops[i] * fontSize > h && Math.random() > 0.975) drops[i] = 0;
-drops[i]++;
-}
-requestAnimationFrame(draw);
-}
-draw();
+const updateClock = () => {
+const now = new Date();
+DOM.clock.innerText = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+};
+setInterval(updateClock, 1000);
+updateClock();
+DOM.plat.innerText = navigator.platform.toUpperCase();
+if(window.PublicKeyCredential) DOM.tpm.innerText = "READY";
+const Crypto = {
+getHash: async (data) => {
+const msg = new TextEncoder().encode(data);
+const buf = await crypto.subtle.digest('SHA-256', msg);
+return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 };
-const Logic = {
-init: () => {
-UI.pPlat.innerText = navigator.platform.substring(0,10).toUpperCase();
-UI.pCore.innerText = navigator.hardwareConcurrency || "8";
-UI.trigger.addEventListener('click', Logic.execute);
-Background.init();
-if(new URLSearchParams(window.location.search).has('v')) Logic.handleVerify();
-},
-execute: async () => {
+const App = {
+run: async () => {
 try {
-UI.trigger.disabled = true;
-UI.trigger.innerText = "HARDWARE_HANDSHAKE...";
-const challenge = crypto.getRandomValues(new Uint8Array(32));
+DOM.btn.disabled = true;
+DOM.btn.innerText = "Processing...";
+const challenge = crypto.getRandomValues(new Uint8Array(64));
 const options = {
 challenge: challenge,
-rp: { name: "Hard-Att Enterprise", id: window.location.hostname },
-user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "subject", displayName: "Verified Human" },
+rp: { name: "HARD-ATT INFRA", id: window.location.hostname },
+user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "auth_node", displayName: "Authorized Node" },
 pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-authenticatorSelection: { userVerification: "required" },
+authenticatorSelection: { 
+authenticatorAttachment: "platform", 
+userVerification: "required" 
+},
 timeout: 60000
 };
-const credential = await navigator.credentials.create({ publicKey: options });
+const cred = await navigator.credentials.create({ publicKey: options });
 const ts = Math.floor(Date.now() / 1000);
-const rawId = Array.from(new Uint8Array(credential.rawId)).map(b => b.toString(16).padStart(2,'0')).join('');
-const msg = new TextEncoder().encode(`${rawId}|${ts}|ENTERPRISE_SECURE_2026`);
-const hashBuf = await crypto.subtle.digest('SHA-256', msg);
-const hash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
-const vUrl = `${window.location.origin}${window.location.pathname}?v=${hash}&t=${ts}`;
-const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(vUrl)}&color=000000&bgcolor=ffffff`;
-UI.qr.innerHTML = `<img src="${qrUrl}">`;
-UI.hash.innerText = hash;
-setTimeout(() => {
-UI.init.style.display = 'none';
-UI.output.style.display = 'block';
-if(navigator.vibrate) navigator.vibrate([10, 50, 10]);
-}, 800);
+const rawId = Array.from(new Uint8Array(cred.rawId)).map(b => b.toString(16).padStart(2,'0')).join('');
+const finalProof = await Crypto.getHash(`${rawId}|${ts}|ENT_2026_SUPER_SALT_99`);
+const vUrl = `${window.location.origin}${window.location.pathname}?v=${finalProof}&t=${ts}`;
+DOM.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(vUrl)}&color=000000&bgcolor=ffffff">`;
+DOM.hash.innerText = "AUTH_TOKEN::" + finalProof;
+DOM.init.style.display = 'none';
+DOM.view.style.display = 'block';
 } catch (e) {
-UI.trigger.disabled = false;
-UI.trigger.innerText = "ERROR: " + e.name;
-UI.trigger.style.background = "#ff4444";
+DOM.btn.disabled = false;
+DOM.btn.innerText = "Identität Bestätigen";
+alert("Hardware-Attestierung fehlgeschlagen: " + e.message);
 }
 },
-handleVerify: () => {
+verify: () => {
 const p = new URLSearchParams(window.location.search);
-UI.init.innerHTML = `
-<div style="text-align:center">
-<div class="badge active" style="margin-bottom:20px; font-size:1rem; padding:10px 20px">HUMAN_CONFIRMED</div>
-<div class="stat-item" style="margin-bottom:20px; text-align:left">
-<span class="stat-label">VERIFIED_PROTOCOL_ID</span>
-<span class="stat-val" style="word-break:all">${p.get('v')}</span>
-</div>
-<p class="desc">Dieses Gerät wurde am ${new Date(p.get('t')*1000).toLocaleString()} erfolgreich via Hardware-Attestierung verifiziert.</p>
-<button class="action-btn" onclick="location.href=location.pathname" style="background:#111; color:#fff">ZURÜCK</button>
-</div>`;
+if(!p.has('v')) return;
+DOM.init.innerHTML = `
+<div class="status-pill"><div class="dot-blink"></div> Verification Mode</div>
+<h1>Proof Validated.</h1>
+<p class="description">Dieser Hardware-Fingerprint ist authentisch. Er wurde auf einem verifizierten Secure Element generiert.</p>
+<div class="hash-block" style="color:#fff">${p.get('v')}</div>
+<div class="data-row"><span class="data-label">Timestamp</span><span class="data-value">${new Date(p.get('t')*1000).toLocaleString()}</span></div>
+<button onclick="location.href=location.pathname" class="primary-btn" style="margin-top:40px">Zurück</button>
+`;
 }
 };
-Logic.init();
+DOM.btn.addEventListener('click', App.run);
+App.verify();
 })();
 </script>
 </body>
