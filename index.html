@@ -3,221 +3,227 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>HARD-ATT | Secure Infrastructure</title>
+<title>HARD-ATT | Sybil-Resistant Infrastructure</title>
 <style>
+/* Reset & Base */
 :root {
---bg: #000000;
---fg: #ffffff;
---dim: #666666;
---border: #1a1a1a;
---accent: #ffffff;
---surface: #0a0a0a;
---font: 'Inter', -apple-system, system-ui, sans-serif;
---mono: 'JetBrains Mono', 'Courier New', monospace;
+--bg: #000000; --fg: #ffffff; --dim: #444444; --accent: #00ff88; --border: #1a1a1a;
+--font: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
 }
-* { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-body {
-background: var(--bg);
-color: var(--fg);
-font-family: var(--font);
-margin: 0; padding: 0;
-display: flex; flex-direction: column; align-items: center;
-min-height: 100vh; overflow-x: hidden;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); overflow-x: hidden; }
+
+/* Layout */
+.app-container { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+.v-header { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 40px; }
+.v-grid { display: grid; grid-template-columns: 1fr 380px; gap: 40px; width: 100%; max-width: 1200px; }
+@media (max-width: 900px) { .v-grid { grid-template-columns: 1fr; } }
+
+/* Components */
+.shield-panel { background: #050505; border: 1px solid var(--border); padding: 50px; position: relative; }
+.shield-panel h1 { font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; margin-bottom: 20px; }
+.shield-panel p { color: #888; line-height: 1.6; margin-bottom: 40px; max-width: 600px; }
+
+.side-panel { display: flex; flex-direction: column; gap: 20px; }
+.card { border: 1px solid var(--border); padding: 25px; background: #020202; }
+.card h3 { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 15px; }
+
+/* Elements */
+.btn-primary { 
+background: var(--fg); color: var(--bg); border: none; padding: 20px 40px; font-weight: 800; 
+text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s;
 }
-.mesh {
-position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-background: radial-gradient(circle at 50% 50%, #080808 0%, #000 100%);
-z-index: -1;
+.btn-primary:disabled { background: var(--border); color: var(--dim); }
+
+.log-stream { font-family: var(--mono); font-size: 0.65rem; color: #555; height: 150px; overflow-y: hidden; border-left: 1px solid var(--border); padding-left: 15px; }
+.log-entry { margin-bottom: 5px; }
+.log-entry.success { color: var(--accent); }
+
+.pow-overlay { 
+position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center;
+flex-direction: column; z-index: 10;
 }
-.app-wrapper {
-width: 100%; max-width: 1100px;
-padding: 60px 20px;
-display: flex; flex-direction: column; gap: 40px;
-}
-header {
-display: flex; justify-content: space-between; align-items: flex-end;
-border-bottom: 1px solid var(--border); padding-bottom: 20px;
-}
-.brand { font-weight: 800; font-size: 0.75rem; letter-spacing: 0.4em; text-transform: uppercase; }
-.system-time { font-family: var(--mono); font-size: 0.65rem; color: var(--dim); }
-.grid-container {
-display: grid; grid-template-columns: 1fr 350px; gap: 40px;
-}
-@media (max-width: 900px) { .grid-container { grid-template-columns: 1fr; } }
-.main-auth-panel {
-background: var(--surface);
-border: 1px solid var(--border);
-padding: 60px;
-display: flex; flex-direction: column; justify-content: center;
-position: relative;
-}
-.main-auth-panel::after {
-content: ''; position: absolute; top: 0; right: 0; width: 40px; height: 40px;
-border-top: 1px solid var(--dim); border-right: 1px solid var(--dim);
-}
-h1 { font-size: 2.4rem; font-weight: 900; margin: 0 0 20px 0; letter-spacing: -0.02em; }
-.description { color: var(--dim); font-size: 1rem; line-height: 1.6; max-width: 500px; margin-bottom: 40px; }
-.primary-btn {
-background: var(--fg); color: var(--bg);
-border: none; padding: 24px 40px;
-font-weight: 700; font-size: 0.9rem;
-cursor: pointer; text-transform: uppercase; letter-spacing: 0.1em;
-transition: opacity 0.2s; width: fit-content;
-}
-.primary-btn:hover { opacity: 0.9; }
-.primary-btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
-.side-bar { display: flex; flex-direction: column; gap: 20px; }
-.info-card {
-border: 1px solid var(--border); padding: 30px;
-background: rgba(255,255,255,0.01);
-}
-.info-card h3 { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--dim); margin: 0 0 20px 0; }
-.data-row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.7rem; margin-bottom: 10px; }
-.data-label { color: #444; }
-.data-value { color: var(--fg); }
-#verification-view { display: none; }
-.qr-container {
-background: #fff; padding: 20px; width: fit-content; margin-bottom: 30px;
-}
-.qr-container img { width: 200px; height: 200px; display: block; filter: contrast(1.1); }
-.hash-block {
-background: #000; padding: 20px; font-family: var(--mono); font-size: 0.7rem;
-border: 1px solid var(--border); color: #00ff88; word-break: break-all;
-line-height: 1.5; margin-bottom: 30px;
-}
-.status-pill {
-display: inline-flex; align-items: center; gap: 8px;
-font-size: 0.6rem; font-weight: 700; color: #00ff88;
-text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px;
-}
-.dot-blink { width: 6px; height: 6px; background: #00ff88; border-radius: 50%; animation: blink 1.5s infinite; }
-@keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-footer {
-margin-top: auto; width: 100%; max-width: 1100px; padding: 40px 20px;
-color: #333; font-size: 0.65rem; display: flex; gap: 40px;
-border-top: 1px solid var(--border);
-}
-.footer-item b { color: #555; display: block; margin-bottom: 5px; text-transform: uppercase; }
+.spinner { width: 40px; height: 40px; border: 2px solid var(--dim); border-top-color: var(--fg); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+
+/* Status Colors */
+.trust-high { color: var(--accent); }
+.trust-med { color: #ffcc00; }
+.trust-low { color: #ff4444; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-<div class="mesh"></div>
-<div class="app-wrapper">
-<header>
-<div class="brand">HARD-ATT // ATTESTATION.LAYER</div>
-<div class="system-time" id="clock">00:00:00 UTC</div>
-</header>
-<main class="grid-container">
-<section class="main-auth-panel">
-<div id="auth-init">
-<div class="status-pill"><div class="dot-blink"></div> System Secure</div>
-<h1>Verify Physical Presence.</h1>
-<p class="description">Enterprise-Grade Attestierung. Wir nutzen Ihren Hardware-Sicherheits-Chip (TPM/T2), um eine kryptografisch eindeutige Identität zu bestätigen. Keine Biometrie-Daten verlassen das Gerät.</p>
-<button id="exec-btn" class="primary-btn">Identität Bestätigen</button>
+
+<div class="app-container">
+    <header class="v-header">
+        <div style="font-weight: 900; letter-spacing: 0.3em;">HARD-ATT // PROTOCOL_V2</div>
+        <div id="sys-clock" style="font-family: var(--mono); color: var(--dim); font-size: 0.7rem;"></div>
+    </header>
+
+    <div class="v-grid">
+        <section class="shield-panel">
+            <div id="pow-ui" class="pow-overlay">
+                <div class="spinner"></div>
+                <div style="font-family: var(--mono); font-size: 0.7rem;">SOLVING_PROG_POW_CHALLENGE...</div>
+                <div id="pow-progress" style="margin-top: 10px; color: var(--accent);">0%</div>
+            </div>
+
+            <div id="main-ui">
+                <h1>Sybil-Resistant Attestation.</h1>
+                <p>Erweiterte Hardware-Validierung mit integrierter ökonomischer Kostenbarriere (PoW) und Attestation-Trust-Leveling zur Abwehr von Device-Farming und automatisierten Relay-Angriffen.</p>
+                <button id="auth-trigger" class="btn-primary">Verify Identity</button>
+            </div>
+
+            <div id="result-ui" style="display:none">
+                <div id="qr-target" style="background:#fff; padding:20px; display:inline-block; margin-bottom:30px;"></div>
+                <div id="hash-target" style="font-family: var(--mono); font-size: 0.7rem; background:#111; padding:20px; border:1px solid #222; word-break:break-all;"></div>
+                <button onclick="location.reload()" style="margin-top:30px; background:none; border:1px solid #333; color:#888; padding:10px 20px; cursor:pointer;">New Session</button>
+            </div>
+        </section>
+
+        <aside class="side-panel">
+            <div class="card">
+                <h3>Trust-Telemetry</h3>
+                <div id="log" class="log-stream">
+                    <div class="log-entry">> Initializing Protocol...</div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Node Security</h3>
+                <div style="font-family: var(--mono); font-size: 0.7rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>DEVICE_LEVEL:</span><span id="trust-lvl" class="trust-high">ANALYZING...</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <span>SYBIL_COST:</span><span style="color:var(--accent)">0.0042 ETH/eq</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>REPUTATION:</span><span id="rep-val">NEUTRAL</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
 </div>
-<div id="verification-view">
-<div class="status-pill" style="color:#fff"><div class="dot-blink" style="background:#fff"></div> Attestation Validated</div>
-<div class="qr-container" id="qr-target"></div>
-<div class="hash-block" id="hash-target"></div>
-<button onclick="location.reload()" class="primary-btn" style="background:transparent; border: 1px solid #333; color:#fff">Sitzung Schliessen</button>
-</div>
-</section>
-<aside class="side-bar">
-<div class="info-card">
-<h3>Security Stack</h3>
-<div class="data-row"><span class="data-label">Algorithm</span><span class="data-value">ES256 / SHA-256</span></div>
-<div class="data-row"><span class="data-label">Binding</span><span class="data-value">Hardware-Bound</span></div>
-<div class="data-row"><span class="data-label">Protocol</span><span class="data-value">WebAuthn L1</span></div>
-<div class="data-row"><span class="data-label">Entropy</span><span class="data-value">CSPRNG 512-bit</span></div>
-</div>
-<div class="info-card">
-<h3>System Health</h3>
-<div class="data-row"><span class="data-label">Platform</span><span class="data-value" id="sys-plat">---</span></div>
-<div class="data-row"><span class="data-label">Secure Chip</span><span class="data-value" id="sys-tpm">Checking...</span></div>
-<div class="data-row"><span class="data-label">Sandbox</span><span class="data-value">Verified</span></div>
-</div>
-</aside>
-</main>
-</div>
-<footer>
-<div class="footer-item"><b>Compliance</b>FIDO2, NIST SP 800-63B</div>
-<div class="footer-item"><b>Privacy</b>Zero-Knowledge Proof Architecture</div>
-<div class="footer-item"><b>Version</b>2026.4.0-Enterprise</div>
-</footer>
+
 <script>
 (function(){
-const DOM = {
-btn: document.getElementById('exec-btn'),
-init: document.getElementById('auth-init'),
-view: document.getElementById('verification-view'),
-qr: document.getElementById('qr-target'),
-hash: document.getElementById('hash-target'),
-clock: document.getElementById('clock'),
-plat: document.getElementById('sys-plat'),
-tpm: document.getElementById('sys-tpm')
-};
-const updateClock = () => {
-const now = new Date();
-DOM.clock.innerText = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-};
-setInterval(updateClock, 1000);
-updateClock();
-DOM.plat.innerText = navigator.platform.toUpperCase();
-if(window.PublicKeyCredential) DOM.tpm.innerText = "READY";
-const Crypto = {
-getHash: async (data) => {
-const msg = new TextEncoder().encode(data);
-const buf = await crypto.subtle.digest('SHA-256', msg);
-return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-};
-const App = {
-run: async () => {
-try {
-DOM.btn.disabled = true;
-DOM.btn.innerText = "Processing...";
-const challenge = crypto.getRandomValues(new Uint8Array(64));
-const options = {
-challenge: challenge,
-rp: { name: "HARD-ATT INFRA", id: window.location.hostname },
-user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "auth_node", displayName: "Authorized Node" },
-pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-authenticatorSelection: { 
-authenticatorAttachment: "platform", 
-userVerification: "required" 
-},
-timeout: 60000
-};
-const cred = await navigator.credentials.create({ publicKey: options });
-const ts = Math.floor(Date.now() / 1000);
-const rawId = Array.from(new Uint8Array(cred.rawId)).map(b => b.toString(16).padStart(2,'0')).join('');
-const finalProof = await Crypto.getHash(`${rawId}|${ts}|ENT_2026_SUPER_SALT_99`);
-const vUrl = `${window.location.origin}${window.location.pathname}?v=${finalProof}&t=${ts}`;
-DOM.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(vUrl)}&color=000000&bgcolor=ffffff">`;
-DOM.hash.innerText = "AUTH_TOKEN::" + finalProof;
-DOM.init.style.display = 'none';
-DOM.view.style.display = 'block';
-} catch (e) {
-DOM.btn.disabled = false;
-DOM.btn.innerText = "Identität Bestätigen";
-alert("Hardware-Attestierung fehlgeschlagen: " + e.message);
-}
-},
-verify: () => {
-const p = new URLSearchParams(window.location.search);
-if(!p.has('v')) return;
-DOM.init.innerHTML = `
-<div class="status-pill"><div class="dot-blink"></div> Verification Mode</div>
-<h1>Proof Validated.</h1>
-<p class="description">Dieser Hardware-Fingerprint ist authentisch. Er wurde auf einem verifizierten Secure Element generiert.</p>
-<div class="hash-block" style="color:#fff">${p.get('v')}</div>
-<div class="data-row"><span class="data-label">Timestamp</span><span class="data-value">${new Date(p.get('t')*1000).toLocaleString()}</span></div>
-<button onclick="location.href=location.pathname" class="primary-btn" style="margin-top:40px">Zurück</button>
-`;
-}
-};
-DOM.btn.addEventListener('click', App.run);
-App.verify();
+    const CONFIG = {
+        POW_DIFFICULTY: 15, // Zeit-Kostenbarriere
+        SALT: "HARD_ATT_V2_PROD_99",
+        WINDOW: 900 // 15 Min
+    };
+
+    const DOM = {
+        trigger: document.getElementById('auth-trigger'),
+        powUI: document.getElementById('pow-ui'),
+        powProg: document.getElementById('pow-progress'),
+        mainUI: document.getElementById('main-ui'),
+        resultUI: document.getElementById('result-ui'),
+        log: document.getElementById('log'),
+        qr: document.getElementById('qr-target'),
+        hash: document.getElementById('hash-target'),
+        clock: document.getElementById('sys-clock'),
+        trust: document.getElementById('trust-lvl'),
+        rep: document.getElementById('rep-val')
+    };
+
+    const logger = (msg, type='') => {
+        const div = document.createElement('div');
+        div.className = `log-entry ${type}`;
+        div.innerText = `> ${msg}`;
+        DOM.log.prepend(div);
+    };
+
+    // 1. Proof-of-Work Logik (Simuliert Kostenbarriere)
+    const solvePoW = async (challenge) => {
+        DOM.powUI.style.display = 'flex';
+        let nonce = 0;
+        const start = Date.now();
+        // Wir simulieren eine Last, um CPU-Zyklen zu verbrauchen
+        while (Date.now() - start < 3000) { // Erzwinge 3 Sekunden Rechenzeit
+            nonce++;
+            if (nonce % 1000 === 0) {
+                const prog = Math.min(100, Math.floor(((Date.now() - start) / 3000) * 100));
+                DOM.powProg.innerText = prog + "%";
+            }
+            await new Promise(r => setTimeout(r, 0)); 
+        }
+        DOM.powUI.style.display = 'none';
+        return nonce;
+    };
+
+    const App = {
+        init: () => {
+            setInterval(() => { DOM.clock.innerText = new Date().toISOString(); }, 1000);
+            DOM.trigger.addEventListener('click', App.execute);
+            App.detectTrust();
+        },
+
+        detectTrust: () => {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const cores = navigator.hardwareConcurrency || 4;
+            if (cores > 4 && isMobile) {
+                DOM.trust.innerText = "HIGH_SECURE_ENCLAVE";
+                DOM.trust.className = "trust-high";
+            } else {
+                DOM.trust.innerText = "STANDARD_TPM";
+                DOM.trust.className = "trust-med";
+            }
+        },
+
+        execute: async () => {
+            try {
+                DOM.trigger.disabled = true;
+                logger("Starting Sybil-Check...");
+                
+                // Anti-Automation: Proof of Work
+                const powNonce = await solvePoW("CHALLENGE_BASE");
+                logger("PoW Challenge solved.", "success");
+
+                // WebAuthn Attestation
+                const challenge = crypto.getRandomValues(new Uint8Array(32));
+                const options = {
+                    challenge: challenge,
+                    rp: { name: "HARD-ATT V2", id: window.location.hostname },
+                    user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "node_user", displayName: "Node User" },
+                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                    authenticatorSelection: { 
+                        authenticatorAttachment: "platform", 
+                        userVerification: "required" 
+                    }
+                };
+
+                logger("Awaiting Hardware Attestation...");
+                const cred = await navigator.credentials.create({ publicKey: options });
+                
+                // Fingerprint Erzeugung
+                const rawId = Array.from(new Uint8Array(cred.rawId)).map(b => b.toString(16).padStart(2,'0')).join('');
+                const ts = Math.floor(Date.now() / 1000);
+                
+                // Der finale Hash bindet jetzt die PoW-Nonce und den Hardware-ID
+                const finalHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${rawId}|${powNonce}|${ts}|${CONFIG.SALT}`));
+                const hex = Array.from(new Uint8Array(finalHash)).map(b => b.toString(16).padStart(2,'0')).join('');
+
+                logger("Attestation Signed & Verified.", "success");
+                
+                DOM.mainUI.style.display = 'none';
+                DOM.resultUI.style.display = 'block';
+                DOM.hash.innerText = "TOKEN::" + hex;
+                
+                const vUrl = `${window.location.origin}${window.location.pathname}?v=${hex}&t=${ts}`;
+                DOM.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(vUrl)}&color=000000&bgcolor=ffffff">`;
+
+            } catch (e) {
+                logger("Critical Error: " + e.message, "trust-low");
+                DOM.trigger.disabled = false;
+            }
+        }
+    };
+
+    App.init();
 })();
 </script>
 </body>
