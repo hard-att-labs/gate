@@ -15,16 +15,14 @@
         button:hover { background: #00cc6e; transform: translateY(-1px); }
         button:disabled { background: #1a1a1a; color: #444; cursor: not-allowed; }
         #status { margin-top: 25px; font-size: 0.65rem; color: var(--neon); text-align: left; background: #000; padding: 12px; border-radius: 8px; border: 1px solid #111; min-height: 50px; word-break: break-all; line-height: 1.6; }
-        .glitch { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 24px; box-shadow: inset 0 0 20px rgba(0,255,136,0.05); }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="glitch"></div>
     <svg class="logo" viewBox="0 0 24 24"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
     <h1>HARD-ATT</h1>
-    <p>HARDWARE-LEVEL VERIFICATION<br>DECENTRALIZED SIGNAL V1.0</p>
+    <p>HARDWARE-LEVEL VERIFICATION<br>DECENTRALIZED SIGNAL V1.1</p>
     <button id="authBtn">Execute Hardware Scan</button>
     <div id="status">_SYSTEM_WAITING...</div>
 </div>
@@ -32,11 +30,12 @@
 <script>
     const status = document.getElementById('status');
     const authBtn = document.getElementById('authBtn');
+    const GHOST_ID = "HARD_ATT_V1_STABLE";
 
     authBtn.addEventListener('click', async () => {
         try {
             authBtn.disabled = true;
-            status.innerText = "> CALLING_ENV_ENCLAVE...";
+            status.innerText = "> INITIALIZING_HARDWARE_VAULT...";
             
             const challenge = new Uint8Array(32);
             window.crypto.getRandomValues(challenge);
@@ -46,12 +45,15 @@
                     challenge: challenge,
                     rp: { name: "HARD-ATT", id: window.location.hostname },
                     user: {
-                        id: Uint8Array.from("ID_"+Date.now(), c => c.charCodeAt(0)),
+                        id: Uint8Array.from(GHOST_ID, c => c.charCodeAt(0)),
                         name: "human@hard-att.io",
                         displayName: "Verified Human"
                     },
                     pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-                    authenticatorSelection: { userVerification: "required" },
+                    authenticatorSelection: { 
+                        userVerification: "required",
+                        residentKey: "required"
+                    },
                     timeout: 60000
                 }
             };
@@ -62,8 +64,16 @@
             const token = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
             
             status.style.color = "var(--neon)";
-            status.innerHTML = `> SIG_MATCH<br>> HASH: ${token.substring(0,32)}...<br>> STATUS: HUMAN_CONFIRMED`;
-            authBtn.innerText = "ACCESS_GRANTED";
+            status.innerHTML = `> SIG_MATCH<br>> ID: ${token.substring(0,32)}...<br>> STATUS: HUMAN_CONFIRMED`;
+            
+            authBtn.innerText = "COPY TOKEN";
+            authBtn.disabled = false;
+            
+            authBtn.onclick = () => {
+                navigator.clipboard.writeText(token);
+                authBtn.innerText = "COPIED TO BUFFER";
+                setTimeout(() => { authBtn.innerText = "ACCESS_GRANTED"; }, 2000);
+            };
             
         } catch (err) {
             authBtn.disabled = false;
