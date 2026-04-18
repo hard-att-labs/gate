@@ -1,245 +1,519 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>HARD-ATT // Sovereign Hardware Attestation</title>
-<style>
-:root {
-    --bg: #000; --fg: #fff; --border: #1a1a1a; --dim: #555; --accent: #00ff88;
-    --font: 'Inter', system-ui, -apple-system, sans-serif;
-    --mono: 'JetBrains Mono', 'Roboto Mono', monospace;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-body { 
-    background: var(--bg); color: var(--fg); font-family: var(--font); 
-    line-height: 1.5; -webkit-font-smoothing: antialiased; 
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HARD-ATT V4.0 | Sovereign Infrastructure</title>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #050505;
+            --bg-card: #0a0a0a;
+            --border-subtle: #111111;
+            --border-heavy: #222222;
+            --accent: #00ff88;
+            --accent-muted: #00331c;
+            --text-main: #ffffff;
+            --text-dim: #666666;
+            --text-critical: #ff3e3e;
+            --font-display: 'Inter', -apple-system, sans-serif;
+            --font-data: 'JetBrains Mono', monospace;
+            --radius: 2px;
+            --shadow-soft: 0 10px 30px rgba(0,0,0,0.5);
+        }
 
-/* Base Layout */
-.master-frame {
-    display: flex; flex-direction: column; min-height: 100vh;
-    padding: 60px 20px; align-items: center;
-}
-.core-layout {
-    width: 100%; max-width: 1200px;
-    display: grid; grid-template-columns: 1fr 400px; gap: 60px;
-}
-@media (max-width: 1000px) { .core-layout { grid-template-columns: 1fr; } }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
 
-/* Typography */
-h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; letter-spacing: -0.05em; line-height: 1; margin-bottom: 24px; }
-.meta-text { font-family: var(--mono); font-size: 0.65rem; text-transform: uppercase; color: var(--dim); letter-spacing: 0.2em; }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: var(--font-display);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
 
-/* Components */
-.auth-engine {
-    background: #050505; border: 1px solid var(--border);
-    padding: 80px 60px; position: relative; display: flex; flex-direction: column;
-}
-.auth-engine::before {
-    content: 'TOP_SECRET // ENCLAVE_ACCESS'; position: absolute; top: 20px; left: 20px;
-    font-family: var(--mono); font-size: 10px; color: #222;
-}
+        .layout-engine {
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            flex-grow: 1;
+        }
 
-.pow-overlay {
-    position: absolute; inset: 0; background: rgba(0,0,0,0.98);
-    display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
-}
-.progress-track { width: 200px; height: 1px; background: #111; margin-top: 20px; position: relative; }
-.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); transition: width 0.1s; }
+        .top-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 40px;
+            margin-bottom: 60px;
+        }
 
-.side-console { display: flex; flex-direction: column; gap: 30px; }
-.panel { border: 1px solid var(--border); padding: 30px; }
-.panel-head { font-family: var(--mono); font-size: 0.6rem; color: var(--dim); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .brand-core {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-/* Buttons & Interactive */
-.btn-core {
-    background: var(--fg); color: var(--bg); border: none; padding: 24px 48px;
-    font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em;
-    cursor: pointer; font-size: 0.8rem; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    width: fit-content;
-}
-.btn-core:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.1); }
-.btn-core:disabled { background: var(--border); color: var(--dim); cursor: wait; }
+        .brand-icon {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent);
+        }
 
-/* Results */
-#view-verified { display: none; }
-.qr-frame { background: #fff; padding: 25px; margin: 30px 0; display: inline-block; }
-.hash-log { 
-    background: #000; border: 1px solid #111; padding: 25px; 
-    font-family: var(--mono); font-size: 0.7rem; color: var(--accent);
-    word-break: break-all; line-height: 1.6;
-}
+        .brand-label {
+            font-weight: 900;
+            letter-spacing: 0.6em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
 
-/* Animations */
-@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-.live-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; margin-right: 10px; animation: pulse 2s infinite; }
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 80px;
+        }
 
-</style>
+        @media (max-width: 1200px) {
+            .main-container { grid-template-columns: 1fr; }
+        }
+
+        .secure-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 100px 80px;
+            position: relative;
+            transition: border-color 0.4s ease;
+        }
+
+        .secure-panel:hover {
+            border-color: var(--border-heavy);
+        }
+
+        .hero-text h1 {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 900;
+            letter-spacing: -0.06em;
+            line-height: 0.85;
+            margin-bottom: 40px;
+        }
+
+        .hero-text p {
+            color: var(--text-dim);
+            font-size: 1.25rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-bottom: 60px;
+        }
+
+        .action-hub {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .btn-titan {
+            background: var(--text-main);
+            color: var(--bg-primary);
+            border: none;
+            padding: 28px 56px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 0.85rem;
+        }
+
+        .btn-titan:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn-titan:disabled {
+            background: var(--border-heavy);
+            color: var(--text-dim);
+            cursor: wait;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-dim);
+            border: 1px solid var(--border-heavy);
+            padding: 28px 40px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-ghost:hover {
+            color: var(--text-main);
+            border-color: var(--text-dim);
+        }
+
+        .telemetry-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .data-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 40px;
+        }
+
+        .data-card h3 {
+            font-family: var(--font-data);
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .metric-label { color: var(--text-dim); font-size: 0.8rem; }
+        .metric-value { font-family: var(--font-data); font-size: 0.85rem; color: var(--accent); }
+
+        .terminal-output {
+            background: #000;
+            height: 350px;
+            padding: 25px;
+            font-family: var(--font-data);
+            font-size: 0.7rem;
+            color: #333;
+            overflow-y: auto;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .log-line { margin-bottom: 8px; line-height: 1.5; border-left: 2px solid transparent; padding-left: 10px; }
+        .log-line.auth { border-left-color: var(--accent); color: #888; }
+        .log-line.sys { color: #555; }
+        .log-line.err { border-left-color: var(--text-critical); color: var(--text-critical); }
+
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.98);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .power-bar {
+            width: 350px;
+            height: 1px;
+            background: #111;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .power-fill {
+            position: absolute;
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        #result-view { display: none; }
+        .qr-output { background: #fff; padding: 30px; display: inline-block; margin-bottom: 40px; }
+        .token-block {
+            background: #070707;
+            border: 1px solid var(--border-heavy);
+            padding: 30px;
+            font-family: var(--font-data);
+            color: var(--accent);
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        footer {
+            padding: 60px 40px;
+            border-top: 1px solid var(--border-subtle);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .footer-sec b { color: var(--text-main); display: block; margin-bottom: 15px; text-transform: uppercase; }
+    </style>
 </head>
 <body>
 
-<div class="master-frame">
-    <div class="core-layout">
-        <main class="auth-engine">
-            <div id="pow-gate" class="pow-overlay">
-                <div class="meta-text" style="color:var(--accent)">Computing Proof-of-Work Cost</div>
-                <div class="progress-track"><div id="pow-bar" class="progress-bar" style="width: 0%"></div></div>
-                <div id="pow-status" class="meta-text" style="margin-top: 15px;">Hashing Nonce...</div>
+<div class="layout-engine">
+    <nav class="top-navigation">
+        <div class="brand-core">
+            <div class="brand-icon"></div>
+            <div class="brand-label">Hard-Att // Sovereign V4</div>
+        </div>
+        <div id="runtime-clock" style="font-family: var(--font-data); color: var(--text-dim); font-size: 0.7rem;">Initializing...</div>
+    </nav>
+
+    <div class="main-container">
+        <section class="secure-panel" id="primary-viewport">
+            
+            <div id="computation-mask" class="loading-overlay">
+                <span style="font-family: var(--font-data); font-size: 0.7rem; letter-spacing: 0.4em; color: var(--accent)">Processing Adaptive Workload</span>
+                <div class="power-bar"><div id="power-indicator" class="power-fill"></div></div>
+                <div id="work-meta" style="font-family: var(--font-data); font-size: 0.6rem; color: #444;">Entropy Source: CSRNG_HARDWARE</div>
             </div>
 
-            <div id="view-init">
-                <div class="meta-text" style="margin-bottom: 20px;"><span class="live-dot"></span> Protocol Active / No Proxy Detected</div>
-                <h1>Hardware Identity<br>Attestation.</h1>
-                <p style="color: #666; max-width: 550px; margin-bottom: 40px; font-size: 1.1rem;">
-                    Beweisen Sie Ihre Einzigartigkeit durch physische Hardware-Kryptografie. Dieses Verfahren erzwingt eine ökonomische Barriere gegen Bot-Netzwerke und garantiert die Bindung an ein lokales Sicherheits-Modul.
-                </p>
-                <button id="trigger" class="btn-core">Initialize Verification</button>
-            </div>
-
-            <div id="view-verified">
-                <div class="meta-text" style="color: var(--accent);">Verification Successful // Token Generated</div>
-                <div class="qr-frame" id="qr-box"></div>
-                <div class="hash-log" id="hash-box"></div>
-                <button onclick="location.reload()" class="btn-core" style="margin-top: 40px; background: transparent; color: #fff; border: 1px solid #222;">Terminate Session</button>
-            </div>
-        </main>
-
-        <aside class="side-console">
-            <div class="panel">
-                <div class="panel-head">Security Telemetry</div>
-                <div id="telemetry-log" style="font-family: var(--mono); font-size: 0.65rem; color: #444;">
-                    <div>> System Readiness: OK</div>
-                    <div>> Enclave Status: L1_BOUND</div>
-                    <div>> Sybil Resistance: ENABLED</div>
+            <div id="init-view">
+                <div class="hero-text">
+                    <h1>Sovereign<br>Attestation.</h1>
+                    <p>Physische Hardware-Validierung ohne Kompromisse. Wir binden Ihre digitale Identität an das lokale Secure-Element Ihres Endgeräts.</p>
+                </div>
+                <div class="action-hub">
+                    <button id="trigger-protocol" class="btn-titan">Start Handshake</button>
+                    <button class="btn-ghost" onclick="App.toggleAdmin()">Audit Mode</button>
                 </div>
             </div>
-            <div class="panel">
-                <div class="panel-head">Trust Metrics</div>
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span class="meta-text">Device Trust</span>
-                        <span id="stat-trust" style="color: var(--accent); font-family: var(--mono); font-size: 0.7rem;">ANALYZING</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span class="meta-text">PoW Cost</span>
-                        <span style="font-family: var(--mono); font-size: 0.7rem;">0.0051 CPU/H</span>
-                    </div>
-                </div>
+
+            <div id="result-view">
+                <div class="qr-output" id="qr-canvas"></div>
+                <div class="token-block" id="token-canvas"></div>
+                <button onclick="location.reload()" class="btn-ghost" style="margin-top: 40px">Terminate Session</button>
+            </div>
+        </section>
+
+        <aside class="telemetry-stack">
+            <div class="data-card">
+                <h3>Hardware Telemetry <span id="trust-indicator" style="color:var(--accent)">Verified</span></h3>
+                <div class="metric-row"><span class="metric-label">Identity Cluster</span><span id="meta-cluster" class="metric-value">---</span></div>
+                <div class="metric-row"><span class="metric-label">Reputation Index</span><span id="meta-rep" class="metric-value">0.00</span></div>
+                <div class="metric-row"><span class="metric-label">Enclave Tier</span><span id="meta-tier" class="metric-value">ANALYZING</span></div>
+            </div>
+
+            <div class="data-card">
+                <h3>Event Protocol</h3>
+                <div id="system-log" class="terminal-output"></div>
             </div>
         </aside>
     </div>
 </div>
 
+<footer>
+    <div class="footer-sec">
+        <b>Security Architecture</b>
+        Kryptografische Bindung via WebAuthn L1 & Platform Authenticator Enforcement. Sybil-Resistenz durch adaptive PoW-Verschleierung.
+    </div>
+    <div class="footer-sec">
+        <b>Infrastructure</b>
+        Edge-Only Validation. Keine Speicherung personenbezogener Daten. Konformität gemäß NIST SP 800-63B.
+    </div>
+    <div class="footer-sec">
+        <b>Node Identity</b>
+        Eindeutige Hardware-Fingerprints durch pseudonyme Identity Clusters. Schutz gegen Device-Farming und Key-Rotation.
+    </div>
+</footer>
+
 <script>
-(function() {
-    const UI = {
-        btn: document.getElementById('trigger'),
-        pow: document.getElementById('pow-gate'),
-        bar: document.getElementById('pow-bar'),
-        powStat: document.getElementById('pow-status'),
-        init: document.getElementById('view-init'),
-        verify: document.getElementById('view-verified'),
-        qr: document.getElementById('qr-box'),
-        hash: document.getElementById('hash-box'),
-        log: document.getElementById('telemetry-log'),
-        trust: document.getElementById('stat-trust')
+/**
+ * @namespace HardAttCore
+ * @description Enterprise Attestation Engine V4.0
+ */
+const HardAttCore = (function() {
+    
+    const SETTINGS = {
+        WORKLOAD_BASE: 3000,
+        VERSION: '4.0.26',
+        SALT: 'TITAN_INFRA_STABLE_01'
     };
 
-    const log = (msg) => {
-        const d = document.createElement('div');
-        d.innerText = `> ${msg}`;
-        UI.log.prepend(d);
+    const STORE = {
+        active: false,
+        cluster: null,
+        reputation: 0
     };
 
-    // 1. Proof-of-Work Engine (Economic Barrier)
-    const runPoW = async (difficulty = 3500) => {
-        UI.pow.style.display = 'flex';
-        const start = Date.now();
-        let nonce = 0;
-        
-        return new Promise(resolve => {
-            const work = () => {
-                const now = Date.now();
-                const elapsed = now - start;
-                nonce++;
-
-                if (elapsed < difficulty) {
-                    const pct = Math.floor((elapsed / difficulty) * 100);
-                    UI.bar.style.width = pct + '%';
-                    UI.powStat.innerText = `Computing Entropy: ${nonce.toString(16)}`;
-                    requestAnimationFrame(work);
-                } else {
-                    UI.pow.style.display = 'none';
-                    resolve(nonce);
-                }
-            };
-            work();
-        });
+    const DOM = {
+        btn: document.getElementById('trigger-protocol'),
+        pow: document.getElementById('computation-mask'),
+        fill: document.getElementById('power-indicator'),
+        log: document.getElementById('system-log'),
+        init: document.getElementById('init-view'),
+        res: document.getElementById('result-view'),
+        qr: document.getElementById('qr-canvas'),
+        tk: document.getElementById('token-canvas'),
+        clock: document.getElementById('runtime-clock'),
+        mClust: document.getElementById('meta-cluster'),
+        mRep: document.getElementById('meta-rep'),
+        mTier: document.getElementById('meta-tier')
     };
 
-    const App = {
-        init: () => {
-            UI.btn.addEventListener('click', App.start);
-            UI.trust.innerText = (navigator.hardwareConcurrency > 4) ? "TIER_1_ENCLAVE" : "TIER_2_BASIC";
-            
-            // Verifizierungs-Check
-            const p = new URLSearchParams(window.location.search);
-            if(p.has('v')) App.showRemoteVerify(p.get('v'), p.get('t'));
+    const Utils = {
+        /**
+         * @param {ArrayBuffer} buffer 
+         * @returns {string} hex
+         */
+        toHex: (buffer) => {
+            return Array.from(new Uint8Array(buffer))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
         },
 
-        start: async () => {
-            try {
-                UI.btn.disabled = true;
-                log("Initializing PoW Layer...");
-                
-                const powResult = await runPoW();
-                log("Economic barrier cleared.");
-
-                log("Requesting Hardware Attestation...");
-                const challenge = crypto.getRandomValues(new Uint8Array(32));
-                const options = {
-                    challenge: challenge,
-                    rp: { name: "HARD-ATT INFRA", id: window.location.hostname },
-                    user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "user_node", displayName: "Authorized Node" },
-                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                    authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" }
-                };
-
-                const cred = await navigator.credentials.create({ publicKey: options });
-                const ts = Math.floor(Date.now() / 1000);
-                const rawId = Array.from(new Uint8Array(cred.rawId)).map(b => b.toString(16).padStart(2,'0')).join('');
-                
-                // Final Crypto-Binding
-                const finalStr = `${rawId}|${powResult}|${ts}|HARD_ATT_V2_FINAL_2026`;
-                const hashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(finalStr));
-                const hex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
-
-                log("Attestation successful.");
-                UI.init.style.display = 'none';
-                UI.verify.style.display = 'block';
-                UI.hash.innerText = "TOKEN::" + hex;
-                UI.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.origin + window.location.pathname + '?v=' + hex + '&t=' + ts)}">`;
-
-            } catch (e) {
-                log("Error: " + e.message);
-                UI.btn.disabled = false;
-            }
+        writeLog: (message, type = 'sys') => {
+            const entry = document.createElement('div');
+            entry.className = `log-line ${type}`;
+            entry.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+            DOM.log.prepend(entry);
         },
 
-        showRemoteVerify: (v, t) => {
-            UI.init.innerHTML = `
-                <div class="meta-text" style="color:var(--accent)">External Attestation Check</div>
-                <h1>Proof Validated.</h1>
-                <div class="hash-log" style="margin-top:30px; color:#fff">${v}</div>
-                <p style="margin-top:20px; font-size:0.8rem; color:#444">Generated: ${new Date(t*1000).toLocaleString()}</p>
-                <button onclick="location.href=location.pathname" class="btn-core" style="margin-top:40px">Dismiss</button>
-            `;
+        getIdentityCluster: async () => {
+            const entropy = [
+                navigator.platform,
+                navigator.hardwareConcurrency,
+                screen.colorDepth,
+                SETTINGS.SALT
+            ].join('|');
+            const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(entropy));
+            return Utils.toHex(hash).substring(0, 16).toUpperCase();
         }
     };
 
-    App.init();
+    const Engine = {
+        /**
+         * @description Adaptive Proof-of-Work to increase economic cost for attackers
+         */
+        solveChallenge: async (hits) => {
+            DOM.pow.style.display = 'flex';
+            const costFactor = Math.pow(1.8, hits);
+            const duration = SETTINGS.WORKLOAD_BASE * costFactor;
+            const start = Date.now();
+
+            return new Promise(resolve => {
+                const tick = () => {
+                    const elapsed = Date.now() - start;
+                    const progress = Math.min(100, (elapsed / duration) * 100);
+                    DOM.fill.style.width = `${progress}%`;
+
+                    if (elapsed < duration) {
+                        requestAnimationFrame(tick);
+                    } else {
+                        DOM.pow.style.display = 'none';
+                        resolve(true);
+                    }
+                };
+                tick();
+            });
+        },
+
+        /**
+         * @description Triggers the native WebAuthn Handshake
+         */
+        authenticateHardware: async () => {
+            const challenge = crypto.getRandomValues(new Uint8Array(32));
+            const options = {
+                publicKey: {
+                    challenge,
+                    rp: { name: "HARD-ATT V4", id: window.location.hostname },
+                    user: { 
+                        id: crypto.getRandomValues(new Uint8Array(16)), 
+                        name: "node_access", 
+                        displayName: "Sovereign Node" 
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                    authenticatorSelection: { 
+                        authenticatorAttachment: "platform", 
+                        userVerification: "required" 
+                    },
+                    timeout: 60000
+                }
+            };
+
+            const credential = await navigator.credentials.create(options);
+            return credential;
+        }
+    };
+
+    const App = {
+        boot: async () => {
+            setInterval(() => { DOM.clock.innerText = new Date().toISOString(); }, 1000);
+            
+            STORE.cluster = await Utils.getIdentityCluster();
+            DOM.mClust.innerText = STORE.cluster;
+            
+            const localData = JSON.parse(localStorage.getItem('att_v4_rep') || '{"hits":0}');
+            STORE.reputation = localData.hits;
+            DOM.mRep.innerText = (STORE.reputation * 0.2).toFixed(2);
+            DOM.mTier.innerText = navigator.hardwareConcurrency > 4 ? "TIER 1 (HW_ENCLAVE)" : "TIER 2 (TPM_SOFT)";
+
+            DOM.btn.addEventListener('click', App.executeProtocol);
+            Utils.writeLog("Infrastructure Node Initialized.", "sys");
+        },
+
+        executeProtocol: async () => {
+            if(STORE.active) return;
+            STORE.active = true;
+            DOM.btn.disabled = true;
+
+            Utils.writeLog("Handshake Protocol Initiated.", "auth");
+            
+            await Engine.solveChallenge(STORE.reputation);
+            Utils.writeLog("Economic Proof validated.", "sys");
+
+            try {
+                const credential = await Engine.authenticateHardware();
+                Utils.writeLog("Hardware Signature captured.", "sys");
+
+                const timestamp = Math.floor(Date.now() / 1000);
+                const finalBlob = `${credential.id}|${STORE.cluster}|${timestamp}|${SETTINGS.VERSION}`;
+                const finalHashBuf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(finalBlob));
+                const finalHash = Utils.toHex(finalHashBuf);
+
+                STORE.reputation++;
+                localStorage.setItem('att_v4_rep', JSON.stringify({hits: STORE.reputation}));
+
+                DOM.init.style.display = 'none';
+                DOM.res.style.display = 'block';
+                DOM.tk.innerText = `AUTH_TOKEN::${finalHash}`;
+                DOM.qr.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(finalHash)}&color=000000">`;
+                
+                Utils.writeLog("Attestation finalized successfully.", "auth");
+            } catch (err) {
+                Utils.writeLog(`Handshake failed: ${err.message}`, "err");
+                DOM.btn.disabled = false;
+                STORE.active = false;
+            }
+        },
+
+        toggleAdmin: () => {
+            Utils.writeLog("Admin Mode: Exporting local reputation metrics...", "sys");
+            console.table(STORE);
+        }
+    };
+
+    return { boot: App.boot, toggleAdmin: App.toggleAdmin };
 })();
+
+window.onload = HardAttCore.boot;
 </script>
 </body>
 </html>
