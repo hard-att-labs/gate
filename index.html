@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HARD-ATT | Hardware Attestation Layer</title>
+    <title>HARD-ATT | Trusted Attestation Layer</title>
     <style>
         :root {
             --bg: #030303;
@@ -12,77 +12,38 @@
             --text-dim: #777777;
             --card-bg: #0c0c0c;
             --border: #1a1a1a;
-            --shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
-            overflow-x: hidden;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 380px;
-            margin-top: calc(10vh - 20px);
-            margin-bottom: 50px;
-            animation: appIn 1s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .shield-icon {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 25px;
-            display: block;
-            fill: var(--accent);
-            filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.2));
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        h1 {
-            font-size: 1.3rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
-        .subtitle {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            margin-top: 10px;
-        }
+        .app-container { width: 100%; max-width: 380px; animation: appIn 0.8s ease-out; }
 
         .auth-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 28px;
-            padding: 30px;
+            padding: 35px;
             text-align: center;
-            box-shadow: var(--shadow);
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
         .status-terminal {
-            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-family: monospace;
             font-size: 0.7rem;
             color: var(--text-dim);
             margin-bottom: 25px;
-            letter-spacing: 0.5px;
-            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -90,16 +51,13 @@
 
         .status-terminal::before {
             content: '';
-            display: inline-block;
             width: 6px;
             height: 6px;
-            background: var(--text-dim);
+            background: var(--accent);
             border-radius: 50%;
             margin-right: 8px;
+            box-shadow: 0 0 10px var(--accent);
         }
-
-        .status-terminal.active::before { background: var(--accent); animation: pulse 1.5s infinite; }
-        .status-terminal.error::before { background: #ff4444; }
 
         .main-button {
             background: var(--text-main);
@@ -109,205 +67,122 @@
             padding: 20px;
             border-radius: 16px;
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
+            transition: 0.2s;
         }
 
-        .main-button:active { transform: scale(0.97); }
-        .main-button:disabled { background: var(--border); color: var(--text-dim); }
+        .main-button:active { transform: scale(0.96); }
 
-        .button-loading {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0,0,0,0.1);
-            border-top-color: #000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none;
-            left: 50%;
-            top: 50%;
-            margin-left: -11.5px;
-            margin-top: -11.5px;
-        }
+        #result-area, #verify-area { display: none; margin-top: 20px; }
 
-        .main-button.loading { color: transparent; }
-        .main-button.loading .button-loading { display: block; }
-
-        #result-area {
-            display: none;
-            margin-top: 20px;
-            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .qr-container {
-            margin: 20px 0;
+        .qr-frame {
             background: white;
             padding: 15px;
-            border-radius: 16px;
+            border-radius: 18px;
             display: inline-block;
+            margin-bottom: 20px;
         }
 
-        .qr-container img {
-            display: block;
-            width: 180px;
-            height: 180px;
-        }
+        .qr-frame img { width: 180px; height: 180px; display: block; }
 
-        .hash-box {
-            background: rgba(0,0,0,0.5);
-            padding: 15px;
-            border-radius: 12px;
-            font-family: 'SF Mono', monospace;
+        .hash-display {
+            font-family: monospace;
             font-size: 0.6rem;
             color: var(--accent);
+            background: #000;
+            padding: 12px;
+            border-radius: 10px;
             word-break: break-all;
             border: 1px solid #111;
-            margin-bottom: 15px;
         }
 
-        .audit-log {
-            text-align: left;
-            background: #050505;
-            border: 1px solid #111;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
-            font-family: 'SF Mono', monospace;
-            font-size: 0.65rem;
-            color: #444;
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.6rem;
+            font-weight: 900;
+            margin-top: 15px;
+            background: var(--accent);
+            color: var(--bg);
         }
 
-        .audit-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .audit-val { color: var(--text-dim); }
-
-        .explainer-container {
-            width: 100%;
-            max-width: 600px;
-            margin-top: 50px;
-            border-top: 1px solid #111;
-            padding-top: 50px;
-            opacity: 0;
-            animation: explainerIn 1.2s forwards 0.5s;
-        }
-
-        .explainer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .info-card { background: #080808; padding: 25px; border-radius: 20px; border: 1px solid #111; }
-        .info-card h3 { font-size: 0.9rem; margin-top: 0; }
-        .info-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 0; }
-
-        @keyframes appIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); } }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes appIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <svg class="shield-icon" viewBox="0 0 24 24">
-        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.47 4.34-2.85 8.24-7 9.99v-9.99z"/>
-    </svg>
-
-    <header>
-        <h1>HARD-ATT</h1>
-        <div class="subtitle">Secure Hardware Attestation</div>
-    </header>
-
-    <div class="auth-card">
-        <div id="status" class="status-terminal">SYSTEM_READY</div>
-        <button id="startBtn" class="main-button">
-            JETZT VERIFIZIEREN
-            <div class="button-loading"></div>
-        </button>
+    <div class="auth-card" id="mainCard">
+        <div id="status" class="status-terminal">SYSTEM_LIVE</div>
+        
+        <div id="init-view">
+            <h1 style="font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 30px;">HARD-ATT</h1>
+            <button id="startBtn" class="main-button">AUTHENTICATE</button>
+        </div>
 
         <div id="result-area">
-            <div class="qr-container" id="qrContainer"></div>
-            <div class="hash-box" id="hashDisplay"></div>
-            
-            <div class="audit-log">
-                <div class="audit-item"><span>TYPE:</span><span class="audit-val">WEBAUTHN_RS256</span></div>
-                <div class="audit-item"><span>ENCLAVE:</span><span class="audit-val">ACTIVE</span></div>
-                <div class="audit-item"><span>VERIFIED:</span><span class="audit-val" style="color:var(--accent)">TRUE</span></div>
-            </div>
+            <div class="qr-frame" id="qrContainer"></div>
+            <div class="hash-display" id="hashDisplay"></div>
+            <div class="badge">HARDWARE_SIGNED</div>
         </div>
-    </div>
-</div>
 
-<div class="explainer-container">
-    <div class="explainer-grid">
-        <div class="info-card">
-            <h3>Hardware-Bindung</h3>
-            <p>Ihr privater Schlüssel verlässt niemals den Sicherheits-Chip Ihres Geräts. Keine Cloud, kein Tracking.</p>
-        </div>
-        <div class="info-card">
-            <h3>Bot-Resistenz</h3>
-            <p>Durch den physischen Biometrie-Zwang sind automatisierte Angriffe wirtschaftlich und technisch unmöglich.</p>
+        <div id="verify-area">
+            <h2 style="color: var(--accent);">VERIFIED_HUMAN</h2>
+            <div id="verifyHash" class="hash-display" style="margin: 20px 0;"></div>
+            <div style="font-size: 0.8rem; color: var(--text-dim);">Dieser Hash wurde durch eine physische Hardware-Enclave bestätigt.</div>
+            <button onclick="location.href=location.pathname" class="main-button" style="margin-top: 30px; background: #222; color: #fff; font-size: 0.8rem;">BACK</button>
         </div>
     </div>
 </div>
 
 <script>
     const startBtn = document.getElementById('startBtn');
-    const statusText = document.getElementById('status');
+    const initView = document.getElementById('init-view');
     const resultArea = document.getElementById('result-area');
+    const verifyArea = document.getElementById('verify-area');
     const hashDisplay = document.getElementById('hashDisplay');
     const qrContainer = document.getElementById('qrContainer');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('v')) {
+        initView.style.display = 'none';
+        verifyArea.style.display = 'block';
+        document.getElementById('verifyHash').innerText = urlParams.get('v');
+        document.getElementById('status').innerText = "VERIFICATION_MODE";
+    }
 
     startBtn.addEventListener('click', async () => {
         try {
             startBtn.disabled = true;
-            startBtn.classList.add('loading');
-            statusText.classList.add('active');
-            statusText.innerText = "ACCESSING_SECURE_ELEMENT...";
-
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
+            document.getElementById('status').innerText = "BIOMETRIC_CHECK...";
 
             const options = {
-                challenge: challenge,
+                challenge: crypto.getRandomValues(new Uint8Array(32)),
                 rp: { name: "Hard-Att", id: window.location.hostname },
-                user: {
-                    id: window.crypto.getRandomValues(new Uint8Array(16)),
-                    name: "subject@hard-att.io",
-                    displayName: "Verified Subject"
-                },
+                user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "user", displayName: "User" },
                 pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-                authenticatorSelection: { userVerification: "required" },
-                timeout: 60000
+                authenticatorSelection: { userVerification: "required" }
             };
 
-            const credential = await navigator.credentials.create({ publicKey: options });
+            const cred = await navigator.credentials.create({ publicKey: options });
+            const hashBuf = await crypto.subtle.digest('SHA-256', cred.rawId);
+            const hash = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-            const hashBuffer = await crypto.subtle.digest('SHA-256', credential.rawId);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            const verifyUrl = `${window.location.origin}${window.location.pathname}?v=${hash}`;
+            const qrApi = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(verifyUrl)}&color=000000&bgcolor=ffffff`;
+            
+            qrContainer.innerHTML = `<img src="${qrApi}">`;
+            hashDisplay.innerText = hash;
+            
+            initView.style.display = 'none';
+            resultArea.style.display = 'block';
+            document.getElementById('status').innerText = "ATTESTATION_SUCCESS";
 
-            statusText.innerText = "ATTESTATION_VALIDATED";
-            statusText.style.color = "var(--accent)";
-
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${hashHex}&color=000000&bgcolor=ffffff`;
-            qrContainer.innerHTML = `<img src="${qrUrl}" alt="Verification QR">`;
-
-            setTimeout(() => {
-                startBtn.style.display = "none";
-                resultArea.style.display = "block";
-                hashDisplay.innerText = hashHex;
-            }, 600);
-
-        } catch (err) {
+        } catch (e) {
             startBtn.disabled = false;
-            startBtn.classList.remove('loading');
-            statusText.classList.remove('active');
-            statusText.classList.add('error');
-            statusText.innerText = "AUTH_ERROR: " + err.name;
+            document.getElementById('status').innerText = "FAILED";
         }
     });
 </script>
